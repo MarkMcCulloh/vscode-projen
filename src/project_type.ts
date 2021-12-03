@@ -29,6 +29,8 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
   constructor(options: VSCodeExtensionProjectOptions) {
     super(options);
 
+    this.addDeps("@types/vscode");
+
     this.vscodeIgnore = new IgnoreFile(this, ".vscodeignore");
     this.vscodeIgnore.addPatterns(
       ".vscode/**",
@@ -53,11 +55,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("contributes", options.contributes);
 
     if (this.jest) {
-      this.addDevDeps(
-        "@vscode/test-electron",
-        "jest-runner-vscode",
-        "@types/vscode"
-      );
+      this.addDevDeps("@vscode/test-electron", "jest-runner-vscode");
       this.jest.config.runner = "vscode";
       this.jest.config.globals["ts-jest"] = {
         tsconfig: `<rootDir>/${this.tsconfigDev.file.path}`,
@@ -95,6 +93,7 @@ module.exports = {
       this.release.addJobs({
         publish: {
           runsOn: "ubuntu-latest",
+          needs: ["release_github"],
           permissions: { contents: JobPermission.READ },
           steps: [
             {
