@@ -44,12 +44,12 @@ junit.xml
 /lib
 /dist/
 !/.eslintrc.json
-/dist/changelog.md
-/dist/version.txt
-!/.github/workflows/publish.yml
+!/.vscodeignore
 out
 *.vsix
 .vscode-test
 !/jest-runner-vscode.config.js
-!/.vscodeignore
-!/.github/workflows/upgrade.yml
+/dist/changelog.md
+/dist/version.txt
+!/.github/workflows/publish.yml
+!/.github/workflows/upgrade-master.yml

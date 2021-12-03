@@ -1,6 +1,10 @@
 {
   "name": "vscode-projen",
   "description": "VSCode extension for Projen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarkMcCulloh/vscode-projen.git"
+  },
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",
@@ -26,6 +30,7 @@
     "@types/glob": "^7.2.0",
     "@types/jest": "*",
     "@types/node": "^14.17.0",
+    "@types/vscode": "^1.62.0",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vscode/test-electron": "^1.6.2",
@@ -46,13 +51,8 @@
     "ts-node": "^9",
     "typescript": "^4.5.2"
   },
-  "dependencies": {
-    "@types/vscode": "^1.62.0"
-  },
   "bundledDependencies": [],
-  "keywords": [
-    "projen"
-  ],
+  "keywords": [],
   "engines": {
     "vscode": "^1.62.0"
   },
@@ -60,7 +60,6 @@
   "license": "Apache-2.0",
   "version": "0.0.0",
   "jest": {
-    "runner": "vscode",
     "testMatch": [
       "**/__tests__/**/*.ts?(x)",
       "**/?(*.)+(spec|test).ts?(x)"
@@ -97,7 +96,8 @@
       "ts-jest": {
         "tsconfig": "<rootDir>/tsconfig.dev.json"
       }
-    }
+    },
+    "runner": "vscode"
   },
   "types": "lib/extension.d.ts",
   "displayName": "Projen",
