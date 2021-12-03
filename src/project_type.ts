@@ -87,6 +87,7 @@ module.exports = {
           task: this.buildTask,
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
+          releaseWorkflowSetupSteps: this.installWorkflowSteps,
         });
       }
 
