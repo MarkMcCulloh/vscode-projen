@@ -105,7 +105,7 @@
   "preview": true,
   "publisher": "mmcculloh",
   "activationEvents": [
-    "workspaceContains:**/.projen/**",
+    "workspaceContains:.projen/**",
     "onView:projen"
   ],
   "contributes": {
