@@ -87,18 +87,25 @@ module.exports = {
           task: this.buildTask,
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
-          releaseWorkflowSetupSteps: this.installWorkflowSteps,
         });
       }
 
       this.release.addJobs({
-        publish: {
+        "Publish to VSCode Marketplace": {
           runsOn: "ubuntu-latest",
           needs: ["release_github"],
           permissions: { contents: JobPermission.READ },
           steps: [
             {
-              name: "Publish to Visual Studio Marketplace",
+              name: "Download build artifacts",
+              uses: "actions/download-artifact@v2",
+              with: {
+                name: "dist",
+                path: "dist",
+              },
+            },
+            {
+              name: "Publish",
               uses: "HaaLeo/publish-vscode-extension@v0",
               with: {
                 pat: "${{ secrets.VS_MARKETPLACE_TOKEN }}",
