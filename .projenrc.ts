@@ -27,7 +27,7 @@ const project = new VSCodeExtensionProject({
         {
           id: "projen",
           title: "Projen",
-          icon: "resources/projen-outline.svg",
+          icon: "resources/dark/projen-outline.svg",
         },
       ],
     },
@@ -51,7 +51,10 @@ const project = new VSCodeExtensionProject({
       {
         command: "projen.runProjen",
         title: "Run Projen",
-        icon: "$(refresh)",
+        icon: {
+          light: "resources/light/projen-outline.svg",
+          dark: "resources/dark/projen-outline.svg",
+        },
       },
       {
         command: "projen.runTask",
