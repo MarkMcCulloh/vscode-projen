@@ -1,6 +1,6 @@
 {
   "name": "vscode-projen",
-  "description": "VSCode extension for Projen",
+  "description": "Projen helpers and utilities",
   "repository": {
     "type": "git",
     "url": "https://github.com/MarkMcCulloh/vscode-projen.git"

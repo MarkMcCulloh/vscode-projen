@@ -81,7 +81,7 @@ const project = new VSCodeExtensionProject({
   icon: "resources/projen.png",
   releaseToVSMarketplace: true,
   vscodeVersion: "^1.62.0",
-  description: "VSCode extension for Projen",
+  description: "Projen helpers and utilities",
   publisher: "MarkMcCulloh",
   preview: true,
   // TODO: :(

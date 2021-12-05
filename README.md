@@ -1,4 +1,8 @@
-# Projen For VS Code
+# Projen + VSCode = 💖
+
+Add some [projen](https://github.com/projen/projen) flavor to VSCode!
+
+*Currently in beta!*
 
 ## Features
 
@@ -13,6 +17,18 @@
 - Managed Files (Currently incomplete to avoid checking too many files)
   - Show list of files managed by projen (either directly or indirectly, like a lockfile)
   - De-emphasize files managed by projen in explorer and decorate it with "PJ"
+
+## Screenshots
+
+![Basic Overview](./screenshots/ss_1.png)
+
+![Deps and Files](./screenshots/ss_2.png)
+
+![Commands](./screenshots/ss_3.png)
+
+## Changelog
+
+Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).
 
 ## Planned Features
 
