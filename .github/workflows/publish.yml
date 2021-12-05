@@ -59,7 +59,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF: ${{ github.ref }}
-  Publish to VSCode Marketplace:
+  release_marketplace:
+    name: Publish to VSCode Marketplace
     needs: release_github
     runs-on: ubuntu-latest
     permissions:

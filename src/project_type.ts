@@ -91,7 +91,8 @@ module.exports = {
       }
 
       this.release.addJobs({
-        "Publish to VSCode Marketplace": {
+        release_marketplace: {
+          name: "Publish to VSCode Marketplace",
           runsOn: "ubuntu-latest",
           needs: ["release_github"],
           permissions: { contents: JobPermission.READ },
