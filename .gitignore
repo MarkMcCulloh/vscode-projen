@@ -31,9 +31,6 @@ jspm_packages/
 .yarn-integrity
 .cache
 !/.projenrc.js
-/test-reports/
-junit.xml
-/coverage/
 !/.github/workflows/build.yml
 !/.mergify.yml
 !/.github/pull_request_template.md
@@ -48,7 +45,6 @@ junit.xml
 out
 *.vsix
 .vscode-test
-!/jest-runner-vscode.config.js
 /dist/changelog.md
 /dist/version.txt
 !/.github/workflows/publish.yml

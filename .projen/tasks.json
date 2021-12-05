@@ -154,28 +154,7 @@
       "description": "Run tests",
       "steps": [
         {
-          "exec": "jest --passWithNoTests --all --updateSnapshot"
-        },
-        {
           "spawn": "eslint"
-        }
-      ]
-    },
-    "test:update": {
-      "name": "test:update",
-      "description": "Update jest snapshots",
-      "steps": [
-        {
-          "exec": "jest --updateSnapshot"
-        }
-      ]
-    },
-    "test:watch": {
-      "name": "test:watch",
-      "description": "Run jest in watch mode",
-      "steps": [
-        {
-          "exec": "jest --watch"
         }
       ]
     },
@@ -220,7 +199,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vscode/test-electron eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier jest jest-junit jest-runner-vscode json-schema npm-check-updates prettier ts-jest ts-node typescript @types/vscode ts-debounce"
+          "exec": "npm update @types/glob @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier json-schema npm-check-updates prettier ts-node typescript @types/vscode ts-debounce"
         },
         {
           "exec": "npx projen"

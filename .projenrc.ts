@@ -86,8 +86,10 @@ const project = new VSCodeExtensionProject({
   releaseToVSMarketplace: true,
   vscodeVersion: "^1.62.0",
   description: "VSCode extension for Projen",
-  publisher: "mmcculloh",
+  publisher: "MarkMcCulloh",
   preview: true,
+  // TODO: :(
+  jest: false,
 });
 
 project.synth();
