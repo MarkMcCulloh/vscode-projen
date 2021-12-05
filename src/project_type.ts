@@ -88,17 +88,6 @@ module.exports = {
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
           releaseWorkflowSetupSteps: this.installWorkflowSteps,
-          postBuildSteps: [
-            {
-              run: "cp ./{LICENSE,package.json,package-lock.json,README.md,.vscodeignore} dist/",
-            },
-            {
-              run: "cp -R lib dist",
-            },
-            {
-              run: "cp -R resources dist",
-            },
-          ],
         });
       }
 
@@ -128,6 +117,14 @@ module.exports = {
           ],
         },
       });
+
+      const releaseTask = this.tasks.tryFind("release")!;
+
+      releaseTask.exec(
+        "cp ./{LICENSE,package.json,package-lock.json,README.md,.vscodeignore} dist/"
+      );
+      releaseTask.exec("cp -R lib dist");
+      releaseTask.exec("cp -R resources dist");
     }
   }
 }
