@@ -90,10 +90,13 @@ module.exports = {
           releaseWorkflowSetupSteps: this.installWorkflowSteps,
           postBuildSteps: [
             {
-              run: "cp . dist/",
+              run: "cp ./{LICENSE,package.json,package-lock.json,README.md,.vscodeignore} dist/",
             },
             {
-              run: "cp -R lib/. dist/lib/",
+              run: "cp -R lib dist",
+            },
+            {
+              run: "cp -R resources dist",
             },
           ],
         });
