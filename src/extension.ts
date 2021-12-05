@@ -69,11 +69,12 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  const updateStuff = async () => {
-    await projenInfo.update();
-    taskView._onDidChangeTreeData.fire();
-    depsView._onDidChangeTreeData.fire();
-    filesView._onDidChangeTreeData.fire();
+  const updateStuff = () => {
+    void projenInfo.update().then(() => {
+      taskView._onDidChangeTreeData.fire();
+      depsView._onDidChangeTreeData.fire();
+      filesView._onDidChangeTreeData.fire();
+    });
   };
 
   projenWatcher.onDirectoryChange(updateStuff);

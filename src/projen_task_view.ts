@@ -26,11 +26,13 @@ export class ProjenTaskView implements vscode.TreeDataProvider<Task | Step> {
         })
       );
     } else if (element instanceof Task) {
-      const task = this.projenInfo.tasks.find((t) => t.name === element.id)!;
+      const task = this.projenInfo.tasks.find(
+        (t) => t.name === element.label!
+      )!;
       return Promise.resolve(
         task.steps.map((s: ProjenStep) => {
           if (s.type === "spawn") {
-            return this.tasks.find((t) => t.id === s.value)!;
+            return this.tasks.find((t) => t.label! === s.value)!;
           } else {
             return new Step(s.value);
           }
@@ -54,7 +56,6 @@ class Task extends vscode.TreeItem {
       command: "projen.runTask",
       arguments: [obj.name],
     };
-    this.id = obj.name;
     this.tooltip = obj.description;
   }
 }

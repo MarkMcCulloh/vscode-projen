@@ -88,10 +88,6 @@
         {
           "id": "projenFiles",
           "name": "Managed Files"
-        },
-        {
-          "id": "projenProjects",
-          "name": "Available Projects"
         }
       ]
     },

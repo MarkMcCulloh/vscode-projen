@@ -45,10 +45,6 @@ const project = new VSCodeExtensionProject({
           id: "projenFiles",
           name: "Managed Files",
         },
-        {
-          id: "projenProjects",
-          name: "Available Projects",
-        },
       ],
     },
     commands: [

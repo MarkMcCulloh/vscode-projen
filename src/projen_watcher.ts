@@ -1,4 +1,3 @@
-import { debounce } from "ts-debounce";
 import * as vscode from "vscode";
 import { ProjenInfo } from "./projen_info";
 
@@ -26,16 +25,12 @@ export class ProjenWatcher {
   }
 
   onDirectoryChange(listener: (e: vscode.Uri) => any) {
-    debounce(() => {
-      this.projenDirectoryWatcher.onDidCreate(listener);
-      this.projenDirectoryWatcher.onDidChange(listener);
-    }, 500);
+    this.projenDirectoryWatcher.onDidCreate(listener);
+    this.projenDirectoryWatcher.onDidChange(listener);
   }
 
   onProjenChange(listener: (e: vscode.Uri) => any) {
-    debounce(() => {
-      this.projenFileWatcher.onDidCreate(listener);
-      this.projenFileWatcher.onDidChange(listener);
-    }, 500);
+    this.projenFileWatcher.onDidCreate(listener);
+    this.projenFileWatcher.onDidChange(listener);
   }
 }
