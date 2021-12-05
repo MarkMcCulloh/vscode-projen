@@ -148,13 +148,7 @@
           "exec": "git diff --ignore-space-at-eol --exit-code"
         },
         {
-          "exec": "cp ./{LICENSE,package.json,package-lock.json,README.md,.vscodeignore} dist/"
-        },
-        {
-          "exec": "cp -R lib dist"
-        },
-        {
-          "exec": "cp -R resources dist"
+          "exec": "cp -R LICENSE package.json package-lock.json README.md .vscodeignore lib resources dist"
         }
       ]
     },

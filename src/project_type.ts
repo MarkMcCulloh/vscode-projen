@@ -121,10 +121,8 @@ module.exports = {
       const releaseTask = this.tasks.tryFind("release")!;
 
       releaseTask.exec(
-        "cp ./{LICENSE,package.json,package-lock.json,README.md,.vscodeignore} dist/"
+        "cp -R LICENSE package.json package-lock.json README.md .vscodeignore lib resources dist"
       );
-      releaseTask.exec("cp -R lib dist");
-      releaseTask.exec("cp -R resources dist");
     }
   }
 }
