@@ -112,6 +112,7 @@ module.exports = {
               with: {
                 pat: "${{ secrets.VS_MARKETPLACE_TOKEN }}",
                 registryUrl: "https://marketplace.visualstudio.com",
+                packagePath: "./dist",
               },
             },
           ],
