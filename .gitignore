@@ -45,7 +45,7 @@ jspm_packages/
 out
 *.vsix
 .vscode-test
-/dist/changelog.md
-/dist/version.txt
+/lib/changelog.md
+/lib/version.txt
 !/.github/workflows/publish.yml
 !/.github/workflows/upgrade-master.yml

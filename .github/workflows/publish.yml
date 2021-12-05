@@ -36,8 +36,8 @@ jobs:
         if: ${{ steps.git_remote.outputs.latest_commit == github.sha }}
         uses: actions/upload-artifact@v2.1.1
         with:
-          name: dist
-          path: dist
+          name: lib
+          path: lib
   release_github:
     name: Publish to GitHub Releases
     needs: release
@@ -49,11 +49,11 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dist
+          name: lib
           path: dist
       - name: Release
-        run: errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R
-          $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt)
+        run: errout=$(mktemp); gh release create $(cat lib/releasetag.txt) -R
+          $GITHUB_REPOSITORY -F lib/changelog.md -t $(cat lib/releasetag.txt)
           --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode
           -ne 0 ] && ! grep -q "Release.tag_name already exists" $errout; then
           cat $errout; exit $exitcode; fi
@@ -71,8 +71,8 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dist
-          path: dist
+          name: lib
+          path: lib
       - name: Publish
         uses: HaaLeo/publish-vscode-extension@v0
         with:

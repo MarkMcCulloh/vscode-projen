@@ -29,9 +29,9 @@
       "description": "Bumps version based on latest git tag and generates a changelog entry",
       "env": {
         "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
+        "CHANGELOG": "lib/changelog.md",
+        "BUMPFILE": "lib/version.txt",
+        "RELEASETAG": "lib/releasetag.txt"
       },
       "steps": [
         {
@@ -121,7 +121,7 @@
       ],
       "steps": [
         {
-          "exec": "errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q \"Release.tag_name already exists\" $errout; then cat $errout; exit $exitcode; fi"
+          "exec": "errout=$(mktemp); gh release create $(cat lib/releasetag.txt) -R $GITHUB_REPOSITORY -F lib/changelog.md -t $(cat lib/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q \"Release.tag_name already exists\" $errout; then cat $errout; exit $exitcode; fi"
         }
       ]
     },
@@ -133,7 +133,7 @@
       },
       "steps": [
         {
-          "exec": "rm -fr dist"
+          "exec": "rm -fr lib"
         },
         {
           "spawn": "bump"
@@ -163,9 +163,9 @@
       "description": "Restores version to 0.0.0",
       "env": {
         "OUTFILE": "package.json",
-        "CHANGELOG": "dist/changelog.md",
-        "BUMPFILE": "dist/version.txt",
-        "RELEASETAG": "dist/releasetag.txt"
+        "CHANGELOG": "lib/changelog.md",
+        "BUMPFILE": "lib/version.txt",
+        "RELEASETAG": "lib/releasetag.txt"
       },
       "steps": [
         {

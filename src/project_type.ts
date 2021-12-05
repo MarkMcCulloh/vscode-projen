@@ -88,6 +88,7 @@ module.exports = {
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
           releaseWorkflowSetupSteps: this.installWorkflowSteps,
+          artifactsDirectory: "lib",
         });
       }
 
@@ -102,8 +103,8 @@ module.exports = {
               name: "Download build artifacts",
               uses: "actions/download-artifact@v2",
               with: {
-                name: "dist",
-                path: "dist",
+                name: "lib",
+                path: "lib",
               },
             },
             {
