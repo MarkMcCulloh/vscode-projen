@@ -15,5 +15,5 @@ dist
 /.projenrc.js
 tsconfig.tsbuildinfo
 /.eslintrc.json
-/lib/changelog.md
-/lib/version.txt
+/dist/changelog.md
+/dist/version.txt

@@ -88,7 +88,14 @@ module.exports = {
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
           releaseWorkflowSetupSteps: this.installWorkflowSteps,
-          artifactsDirectory: "lib",
+          postBuildSteps: [
+            {
+              run: "cp . dist/",
+            },
+            {
+              run: "cp -R lib/. dist/lib/",
+            },
+          ],
         });
       }
 
@@ -103,8 +110,8 @@ module.exports = {
               name: "Download build artifacts",
               uses: "actions/download-artifact@v2",
               with: {
-                name: "lib",
-                path: "lib",
+                name: "dist",
+                path: "dist",
               },
             },
             {
