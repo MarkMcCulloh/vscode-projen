@@ -3,11 +3,16 @@
 import * as vscode from "vscode";
 import { ProjenDependencyView } from "./projen_dependency_view";
 import { ProjenFileView } from "./projen_files_view";
+import { ProjenInfo } from "./projen_info";
 import { ProjenTaskView } from "./projen_task_view";
+import { ProjenWatcher } from "./projen_watcher";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  const projenInfo = new ProjenInfo(vscode.workspace.rootPath!);
+  const projenWatcher = new ProjenWatcher(projenInfo);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.openProjenRc", async () => {
       const files = await vscode.workspace.findFiles(
@@ -32,65 +37,47 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand("projen.runTask", (taskName: string) => {
-      if (vscode.window.activeTerminal) {
-        vscode.window.activeTerminal.sendText(`npx projen ${taskName}`);
-      }
-    })
-  );
-
-  const taskView = new ProjenTaskView(vscode.workspace.rootPath!);
+  const taskView = new ProjenTaskView(projenInfo);
   vscode.window.createTreeView("projenTasks", {
     treeDataProvider: taskView,
     showCollapseAll: true,
   });
-  const taskWatcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(
-      vscode.workspace.rootPath!,
-      ".projen/tasks.json"
-    ),
-    false,
-    false,
-    true
-  );
-  taskWatcher.onDidCreate((uri) =>
-    taskView.update(vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath!)
-  );
-  taskWatcher.onDidChange((uri) =>
-    taskView.update(vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath!)
-  );
-
-  const depsView = new ProjenDependencyView(vscode.workspace.rootPath!);
+  const depsView = new ProjenDependencyView(projenInfo);
   vscode.window.createTreeView("projenDeps", {
     treeDataProvider: depsView,
   });
-  const depWatcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(vscode.workspace.rootPath!, ".projen/deps.json"),
-    false,
-    false,
-    true
-  );
-  depWatcher.onDidCreate((uri) =>
-    depsView.update(vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath!)
-  );
-  depWatcher.onDidChange((uri) =>
-    depsView.update(vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath!)
-  );
-
-  const filesView = new ProjenFileView(vscode.workspace.rootPath!);
+  const filesView = new ProjenFileView(projenInfo);
   vscode.window.createTreeView("projenFiles", {
     treeDataProvider: filesView,
   });
-  const managedFilesWatcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(vscode.workspace.rootPath!, ".projen/deps.json"),
-    false,
-    true,
-    true
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("projen.runTask", async (task?: string) => {
+      if (vscode.window.activeTerminal) {
+        if (task) {
+          vscode.window.activeTerminal.sendText(`npx projen ${task}`);
+        } else {
+          const selection = await vscode.window.showQuickPick(
+            projenInfo.tasks.map((t) => t.name)
+          );
+
+          if (selection) {
+            vscode.window.activeTerminal.sendText(`npx projen ${selection}`);
+          }
+        }
+      }
+    })
   );
-  managedFilesWatcher.onDidCreate(() => {
+
+  const updateStuff = async () => {
+    await projenInfo.update();
+    taskView._onDidChangeTreeData.fire();
+    depsView._onDidChangeTreeData.fire();
     filesView._onDidChangeTreeData.fire();
-  });
+  };
+
+  projenWatcher.onDirectoryChange(updateStuff);
+  void updateStuff();
 }
 
 // this method is called when your extension is deactivated

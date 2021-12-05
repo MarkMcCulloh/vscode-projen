@@ -8,6 +8,7 @@ const project = new VSCodeExtensionProject({
   repository: "https://github.com/MarkMcCulloh/vscode-projen.git",
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
+  deps: ["ts-debounce"],
   devDeps: ["@types/glob"],
   eslintOptions: {
     dirs: ["src"],

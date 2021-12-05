@@ -1,59 +1,39 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as vscode from "vscode";
+import { ProjenInfo, ProjenStep, ProjenTask } from "./projen_info";
 
 type TreeType = void | Task | Step | null | undefined;
 
 export class ProjenTaskView implements vscode.TreeDataProvider<Task | Step> {
-  tasks: Task[] = [];
-
   public _onDidChangeTreeData: vscode.EventEmitter<TreeType> =
     new vscode.EventEmitter<TreeType>();
   readonly onDidChangeTreeData: vscode.Event<TreeType> =
     this._onDidChangeTreeData.event;
-  taskFileData: any;
+  private tasks: Task[] = [];
 
-  constructor(private workspaceRoot: string) {
-    this.update(workspaceRoot);
-  }
-
-  update(workspaceRoot: string) {
-    this.taskFileData = JSON.parse(
-      fs.readFileSync(
-        path.join(workspaceRoot, ".projen", "tasks.json"),
-        "utf-8"
-      )
-    ).tasks;
-    this.tasks = [];
-
-    this._onDidChangeTreeData.fire();
-  }
+  constructor(private projenInfo: ProjenInfo) {}
 
   getTreeItem(element: Task): vscode.TreeItem {
     return element;
   }
 
   async getChildren(element?: Task | Step): Promise<Task[] | Step[]> {
-    if (!this.workspaceRoot) {
-      void vscode.window.showInformationMessage("No Tasks in empty workspace");
-      return Promise.resolve([]);
-    }
-
     if (!element) {
       return Promise.resolve(
-        Object.values(this.taskFileData).map((t) => {
+        this.projenInfo.tasks.map((t) => {
           const task = new Task(t);
           this.tasks.push(task);
           return task;
         })
       );
     } else if (element instanceof Task) {
+      const task = this.projenInfo.tasks.find((t) => t.name === element.id)!;
       return Promise.resolve(
-        element.obj.steps.map((s: any) => {
-          if (s.spawn) {
-            return this.tasks.find((t) => t.obj.name === s.spawn)!;
+        task.steps.map((s: ProjenStep) => {
+          if (s.type === "spawn") {
+            return this.tasks.find((t) => t.id === s.value)!;
+          } else {
+            return new Step(s.value);
           }
-          return new Step(s);
         })
       );
     }
@@ -67,24 +47,22 @@ class Task extends vscode.TreeItem {
     "play",
     new vscode.ThemeColor("terminal.ansiGreen")
   );
-  constructor(public readonly obj: any) {
+  constructor(obj: ProjenTask) {
     super(obj.name, vscode.TreeItemCollapsibleState.Collapsed);
     this.command = {
       title: "Run Task",
       command: "projen.runTask",
       arguments: [obj.name],
     };
+    this.id = obj.name;
     this.tooltip = obj.description;
   }
 }
 
 class Step extends vscode.TreeItem {
   iconPath = new vscode.ThemeIcon("testing-unset-icon");
-  constructor(public readonly obj: any) {
-    super(
-      Object.entries(obj)[0][1] as string,
-      vscode.TreeItemCollapsibleState.None
-    );
+  constructor(public readonly text: string) {
+    super(text, vscode.TreeItemCollapsibleState.None);
 
     this.tooltip = "";
   }

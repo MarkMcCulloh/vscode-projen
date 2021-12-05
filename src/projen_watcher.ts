@@ -1,12 +1,14 @@
+import { debounce } from "ts-debounce";
 import * as vscode from "vscode";
+import { ProjenInfo } from "./projen_info";
 
-class ProjenWatcher {
+export class ProjenWatcher {
   readonly projenDirectoryWatcher: vscode.FileSystemWatcher;
   readonly projenFileWatcher: vscode.FileSystemWatcher;
 
-  constructor() {
+  constructor(private projenInfo: ProjenInfo) {
     this.projenDirectoryWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(vscode.workspace.rootPath!, ".projen/**"),
+      new vscode.RelativePattern(this.projenInfo.workspaceRoot, ".projen/**"),
       false,
       false,
       true
@@ -14,12 +16,26 @@ class ProjenWatcher {
 
     this.projenFileWatcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(
-        vscode.workspace.rootPath!,
+        this.projenInfo.workspaceRoot,
         ".projenrc.{ts,js}"
       ),
       false,
       false,
       true
     );
+  }
+
+  onDirectoryChange(listener: (e: vscode.Uri) => any) {
+    debounce(() => {
+      this.projenDirectoryWatcher.onDidCreate(listener);
+      this.projenDirectoryWatcher.onDidChange(listener);
+    }, 500);
+  }
+
+  onProjenChange(listener: (e: vscode.Uri) => any) {
+    debounce(() => {
+      this.projenFileWatcher.onDidCreate(listener);
+      this.projenFileWatcher.onDidChange(listener);
+    }, 500);
   }
 }

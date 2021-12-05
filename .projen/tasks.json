@@ -220,7 +220,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vscode/test-electron eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier jest jest-junit jest-runner-vscode json-schema npm-check-updates prettier ts-jest ts-node typescript @types/vscode"
+          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vscode/test-electron eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier jest jest-junit jest-runner-vscode json-schema npm-check-updates prettier ts-jest ts-node typescript @types/vscode ts-debounce"
         },
         {
           "exec": "npx projen"

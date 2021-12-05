@@ -1,6 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as vscode from "vscode";
+import { ProjenDependency, ProjenInfo } from "./projen_info";
 
 type TreeType = void | Dependency | null | undefined;
 
@@ -11,33 +10,17 @@ export class ProjenDependencyView
     new vscode.EventEmitter<TreeType>();
   readonly onDidChangeTreeData: vscode.Event<TreeType> =
     this._onDidChangeTreeData.event;
-  depFileData: any;
 
-  constructor(private workspaceRoot: string) {
-    this.update(workspaceRoot);
-  }
+  constructor(private projenInfo: ProjenInfo) {}
 
   getTreeItem(element: Dependency): vscode.TreeItem {
     return element;
   }
 
-  update(workspaceRoot: string) {
-    this.depFileData = JSON.parse(
-      fs.readFileSync(path.join(workspaceRoot, ".projen", "deps.json"), "utf-8")
-    ).dependencies;
-
-    this._onDidChangeTreeData.fire();
-  }
-
   async getChildren(element?: Dependency): Promise<Dependency[]> {
-    if (!this.workspaceRoot) {
-      void vscode.window.showInformationMessage("No deps in empty workspace");
-      return Promise.resolve([]);
-    }
-
     if (!element) {
       return Promise.resolve(
-        this.depFileData.map((dep: any) => {
+        this.projenInfo.dependencies.map((dep: ProjenDependency) => {
           return new Dependency(dep);
         })
       );
@@ -49,7 +32,7 @@ export class ProjenDependencyView
 
 class Dependency extends vscode.TreeItem {
   iconPath = new vscode.ThemeIcon("package");
-  constructor(public readonly obj: any) {
+  constructor(public readonly obj: ProjenDependency) {
     super(
       `${obj.type}`.padEnd(9, " ") +
         "| " +
