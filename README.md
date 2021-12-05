@@ -2,7 +2,7 @@
 
 Add some [projen](https://github.com/projen/projen) flavor to VSCode!
 
-*Currently in beta!*
+*Currently in preview*
 
 ## Features
 
@@ -12,8 +12,8 @@ Add some [projen](https://github.com/projen/projen) flavor to VSCode!
   - Generate new project
   - Generate new project from external type
 - Task List
-  - Run tasks with a click
-  - List steps
+  - Run tasks in list with a click
+  - List steps and subtasks (and their steps too)
 - Dependency List
   - List packages with types and pinned versions
 - Managed Files (Currently incomplete to avoid checking too many files)
@@ -32,13 +32,11 @@ Add some [projen](https://github.com/projen/projen) flavor to VSCode!
 
 Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).
 
+## Current Limitations
+
+- Only works in a single-folder workspace with a projen project at the root
+- "Managed Files" only refers to files in the root and in the `.projen` folder (to avoid searching too many files)
+
 ## Planned Features
 
-- Notify/remedy stale projenrc (changes have been made without rerunning projen)
-- Make dependencies hierarchal
-- Support multiple workspaces
-- More efficient file watcher for detecting that projen has generated new files
-- Make sure to efficiently get all projen-managed files
-- Dynamically list available project types
-  - List props and such
-- Create projects in empty workspace / new dir
+See [[Feature]](https://github.com/MarkMcCulloh/vscode-projen/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)s in the [GitHub issues list](https://github.com/MarkMcCulloh/vscode-projen/issues).

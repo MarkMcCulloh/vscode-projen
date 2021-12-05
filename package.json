@@ -38,7 +38,7 @@
     "json-schema": "^0.4.0",
     "npm-check-updates": "^11",
     "prettier": "^2.5.1",
-    "projen": "^0.36.8",
+    "projen": "^0.37.0",
     "shx": "^0.3.3",
     "ts-node": "^9",
     "typescript": "^4.5.2",
@@ -48,7 +48,6 @@
     "@types/vscode": "^1.62.0"
   },
   "bundledDependencies": [],
-  "keywords": [],
   "engines": {
     "vscode": "^1.62.0"
   },

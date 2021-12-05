@@ -27,10 +27,11 @@ export class ProjenInfo {
     files.forEach((f) => {
       if (
         f.fsPath.endsWith("package-lock.json") ||
-        f.fsPath.endsWith("yarn.lock")
+        f.fsPath.endsWith(".lock")
       ) {
-        // TODO handles all lock files
-        // lock files are huge, would much rather not try to search them
+        // TODO handle lockfiles in a smarter way
+        // Since dependencies are managed by projen, a lockfile is as well (kinda)
+        // lock files are typically huge, would much rather not try to search them
         projenManaged.push(f);
       } else {
         const fileContent = fs.readFileSync(f.fsPath, "utf-8");

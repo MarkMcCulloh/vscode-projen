@@ -1,13 +1,15 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import {
-  FileBase,
-  IgnoreFile,
-  TextFile,
-  TypeScriptAppProject,
-  TypeScriptProjectOptions,
-} from "projen";
+import { FileBase, IgnoreFile, TextFile } from "projen";
 import { JobPermission } from "projen/lib/github/workflows-model";
 import { Release } from "projen/lib/release";
+import {
+  TypeScriptAppProject,
+  TypeScriptProjectOptions,
+} from "projen/lib/typescript";
+import {
+  VSCodeExtensionCapabilities,
+  VSCodeExtensionContributions,
+} from "./vscode_types";
 
 export interface VSCodeExtensionProjectOptions
   extends TypeScriptProjectOptions {
@@ -18,7 +20,9 @@ export interface VSCodeExtensionProjectOptions
   readonly preview: boolean;
   readonly icon: string;
   readonly activationEvents: string[];
-  readonly contributes: any;
+  readonly categories?: string[];
+  readonly capabilities?: VSCodeExtensionCapabilities;
+  readonly contributes: VSCodeExtensionContributions;
   readonly keywords?: string[];
 }
 
@@ -48,8 +52,11 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("displayName", options.displayName);
     this.package.addField("icon", options.icon);
     this.package.addField("preview", options.preview);
-    this.package.addField("keywords", options.keywords ?? []);
     this.package.addField("publisher", options.publisher);
+
+    if (options.categories) {
+      this.package.addField("categories", options.categories);
+    }
 
     this.package.addField("activationEvents", options.activationEvents);
     this.package.addField("contributes", options.contributes);

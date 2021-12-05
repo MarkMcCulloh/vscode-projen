@@ -1,5 +1,5 @@
-import { NodePackageManager } from "projen";
-import { VSCodeExtensionProject } from "./src/project_type";
+import { NodePackageManager } from "projen/lib/javascript";
+import { VSCodeExtensionProject } from "./src/project/project_type";
 
 const project = new VSCodeExtensionProject({
   defaultReleaseBranch: "master",
