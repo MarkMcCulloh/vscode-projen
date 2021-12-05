@@ -112,18 +112,16 @@ module.exports = {
               with: {
                 pat: "${{ secrets.VS_MARKETPLACE_TOKEN }}",
                 registryUrl: "https://marketplace.visualstudio.com",
-                packagePath: "./dist",
+                extensionFile: "./dist/extension.vsix",
               },
             },
           ],
         },
       });
 
-      const releaseTask = this.tasks.tryFind("release")!;
-
-      releaseTask.exec(
-        "cp -R LICENSE package.json package-lock.json README.md .vscodeignore lib resources dist"
-      );
+      const packageTask = this.tasks.tryFind("package")!;
+      packageTask.exec("mkdir -p dist");
+      packageTask.exec("vsce package -o dist/extension.vsix");
     }
   }
 }

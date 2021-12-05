@@ -101,7 +101,15 @@
     },
     "package": {
       "name": "package",
-      "description": "Creates the distribution package"
+      "description": "Creates the distribution package",
+      "steps": [
+        {
+          "exec": "mkdir -p dist"
+        },
+        {
+          "exec": "vsce package -o dist/extension.vsix"
+        }
+      ]
     },
     "post-compile": {
       "name": "post-compile",
@@ -146,9 +154,6 @@
         },
         {
           "exec": "git diff --ignore-space-at-eol --exit-code"
-        },
-        {
-          "exec": "cp -R LICENSE package.json package-lock.json README.md .vscodeignore lib resources dist"
         }
       ]
     },
@@ -202,7 +207,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier json-schema npm-check-updates prettier shx ts-node typescript @types/vscode ts-debounce"
+          "exec": "npm update @types/glob @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier json-schema npm-check-updates prettier shx ts-node typescript vsce @types/vscode ts-debounce"
         },
         {
           "exec": "npx projen"

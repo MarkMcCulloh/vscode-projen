@@ -72,6 +72,10 @@
       "type": "build"
     },
     {
+      "name": "vsce",
+      "type": "build"
+    },
+    {
       "name": "@types/vscode",
       "type": "runtime"
     },

@@ -87,7 +87,7 @@ export class ProjenTask {
   constructor(taskData: any) {
     this.name = taskData.name;
     this.description = taskData.description;
-    this.steps = taskData.steps.map((s: any) => {
+    this.steps = (taskData.steps ?? []).map((s: any) => {
       const entries = Object.entries(s)[0];
       return new ProjenStep(entries[0], entries[1] as any);
     });
