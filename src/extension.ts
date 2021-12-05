@@ -30,9 +30,78 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("projen.runProjen", () => {
-      if (vscode.window.activeTerminal) {
-        vscode.window.activeTerminal.sendText("npx projen");
+    vscode.commands.registerCommand("projen.run", () => {
+      newOrActiveTerminal().sendText("npx projen");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("projen.new", async () => {
+      const projectTypeListWithDescription = [
+        "awscdk-app-java - AWS CDK app in Java.",
+        "awscdk-app-ts - AWS CDK app in TypeScript.",
+        "awscdk-construct - AWS CDK construct library project.",
+        "cdk8s-app-ts - CDK8s app in TypeScript.",
+        "cdk8s-construct - CDK8s construct library project.",
+        "cdktf-construct - CDKTF construct library project.",
+        "java - Java project.",
+        "jsii - Multi-language jsii library project.",
+        "nextjs - Next.js project without TypeScript.",
+        "nextjs-ts - Next.js project with TypeScript.",
+        "node - Node.js project.",
+        "project - Base project.",
+        "python - Python project.",
+        "react - React project without TypeScript.",
+        "react-ts - React project with TypeScript.",
+        "typescript - TypeScript project.",
+        "typescript-app - TypeScript app.",
+      ];
+
+      const selection = await vscode.window.showQuickPick(
+        projectTypeListWithDescription
+      );
+
+      const additionalArgs = await vscode.window.showInputBox({
+        prompt: "(Optional) Additional arguments to pass to 'projen new'",
+      });
+
+      if (selection) {
+        const projectType = selection.split(" - ")[0];
+        newOrActiveTerminal().sendText(
+          `npx projen new ${projectType} ${additionalArgs ?? ""}`
+        );
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("projen.newExternal", async () => {
+      const selection = await vscode.window.showInputBox({
+        prompt:
+          "External project (e.g. cdk-appsync-project or cdk-appsync-project@1.1.3)",
+      });
+
+      if (selection) {
+        const projectId = await vscode.window.showInputBox({
+          prompt:
+            "(Optional if only one project available) Project ID (e.g. cool-ts-app)",
+        });
+
+        const additionalArgs = await vscode.window.showInputBox({
+          prompt: "(Optional) Additional arguments to pass to 'projen new'",
+        });
+
+        let args = "";
+        if (projectId) {
+          args += " " + projectId;
+        }
+        if (additionalArgs) {
+          args += " " + additionalArgs;
+        }
+
+        newOrActiveTerminal().sendText(
+          `npx projen new --from ${selection}${args}`
+        );
       }
     })
   );
@@ -53,17 +122,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.runTask", async (task?: string) => {
-      if (vscode.window.activeTerminal) {
-        if (task) {
-          vscode.window.activeTerminal.sendText(`npx projen ${task}`);
-        } else {
-          const selection = await vscode.window.showQuickPick(
-            projenInfo.tasks.map((t) => t.name)
-          );
+      if (task) {
+        newOrActiveTerminal().sendText(`npx projen ${task}`);
+      } else {
+        const selection = await vscode.window.showQuickPick(
+          projenInfo.tasks.map((t) => t.name)
+        );
 
-          if (selection) {
-            vscode.window.activeTerminal.sendText(`npx projen ${selection}`);
-          }
+        if (selection) {
+          newOrActiveTerminal().sendText(`npx projen ${selection}`);
         }
       }
     })
@@ -81,35 +148,17 @@ export function activate(context: vscode.ExtensionContext) {
   void updateStuff();
 }
 
+function newOrActiveTerminal() {
+  if (vscode.window.activeTerminal) {
+    vscode.window.activeTerminal.show();
+
+    return vscode.window.activeTerminal;
+  } else {
+    const terminal = vscode.window.createTerminal("projen");
+    terminal.show();
+    return terminal;
+  }
+}
+
 // this method is called when your extension is deactivated
 export function deactivate() {}
-
-// function getExcludes() {
-//   if (!vscode.workspace.rootPath || vscode.workspace.rootPath === "") {
-//     return [];
-//   }
-
-//   const config = vscode.workspace.getConfiguration("files", null);
-//   const excludes: any = config.get("exclude");
-
-//   let list = excludes ? Object.keys(config.get("exclude")!) : [];
-
-//   for (let i = 0; i < list.length; i++) {
-//     let enabled = excludes[list[i]] ? 1 : 0;
-//     list[i] = `${list[i]}|${enabled}`;
-//   }
-
-//   return list;
-// }
-
-// function updateConfig(excludes: string[]) {
-//   if (!vscode.workspace.rootPath || vscode.workspace.rootPath === "") {
-//     return;
-//   }
-
-//   const config = vscode.workspace.getConfiguration("files", null);
-
-//   let target = vscode.ConfigurationTarget.WorkspaceFolder;
-
-//   void config.update("exclude", excludes, target);
-// }

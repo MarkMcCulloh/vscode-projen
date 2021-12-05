@@ -9,6 +9,8 @@ Add some [projen](https://github.com/projen/projen) flavor to VSCode!
 - Commands
   - Run projen
   - Run tasks
+  - Generate new project
+  - Generate new project from external type
 - Task List
   - Run tasks with a click
   - List steps
@@ -36,7 +38,7 @@ Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-p
 - Make dependencies hierarchal
 - Support multiple workspaces
 - More efficient file watcher for detecting that projen has generated new files
-- Make sure to get all projen-managed files
-- List available project types
+- Make sure to efficiently get all projen-managed files
+- Dynamically list available project types
   - List props and such
 - Create projects in empty workspace / new dir

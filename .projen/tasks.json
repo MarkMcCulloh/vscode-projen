@@ -207,7 +207,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint json-schema npm-check-updates prettier shx ts-node typescript vsce @types/vscode ts-debounce"
+          "exec": "npm update @types/glob @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint json-schema npm-check-updates prettier shx ts-node typescript vsce @types/vscode"
         },
         {
           "exec": "npx projen"

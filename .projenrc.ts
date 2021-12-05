@@ -8,7 +8,7 @@ const project = new VSCodeExtensionProject({
   repository: "https://github.com/MarkMcCulloh/vscode-projen.git",
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
-  deps: ["ts-debounce"],
+  deps: [],
   devDeps: ["@types/glob", "shx", "vsce"],
   eslintOptions: {
     dirs: ["src"],
@@ -20,7 +20,13 @@ const project = new VSCodeExtensionProject({
       lib: ["es2019", "dom"],
     },
   },
-  activationEvents: ["workspaceContains:.projen/**", "onView:projen"],
+  // TODO: Figure out a way to avoid "onStartupFinished"
+  // This is needed to allow bootstrapping projen in an empty workspace
+  activationEvents: [
+    "workspaceContains:.projen/**",
+    "onView:projen",
+    "onStartupFinished",
+  ],
   contributes: {
     viewsContainers: {
       activitybar: [
@@ -49,7 +55,7 @@ const project = new VSCodeExtensionProject({
     },
     commands: [
       {
-        command: "projen.runProjen",
+        command: "projen.run",
         title: "Run Projen",
         icon: {
           light: "resources/light/projen-outline.svg",
@@ -66,16 +72,26 @@ const project = new VSCodeExtensionProject({
         title: "Open Projen File",
         icon: "$(gear)",
       },
+      {
+        command: "projen.new",
+        title: "Generate Projen Project",
+      },
+      {
+        command: "projen.newExternal",
+        title: "Generate External Projen Project",
+      },
     ],
     menus: {
       "view/title": [
         {
-          command: "projen.runProjen",
+          command: "projen.run",
           group: "navigation",
+          when: "activeViewlet == 'workbench.view.explorer' || view == 'projenTasks' || view == 'projenDeps' || view == 'projenFiles'",
         },
         {
           command: "projen.openProjenRc",
           group: "navigation",
+          when: "activeViewlet == 'workbench.view.explorer' || view == 'projenTasks' || view == 'projenDeps' || view == 'projenFiles'",
         },
       ],
     },
