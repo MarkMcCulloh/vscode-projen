@@ -86,12 +86,22 @@ const project = new VSCodeExtensionProject({
         {
           command: "projen.run",
           group: "navigation",
-          when: "activeViewlet == 'workbench.view.explorer' || view == 'projenTasks' || view == 'projenDeps' || view == 'projenFiles'",
+          when: "projen.inProject == true && view =~ /^projen.+$/",
         },
         {
           command: "projen.openProjenRc",
           group: "navigation",
-          when: "activeViewlet == 'workbench.view.explorer' || view == 'projenTasks' || view == 'projenDeps' || view == 'projenFiles'",
+          when: "projen.inProject == true && view =~ /^projen.+$/",
+        },
+        {
+          command: "projen.run",
+          group: "navigation",
+          when: "projen.inProject == true && activeViewlet == 'workbench.view.explorer'",
+        },
+        {
+          command: "projen.openProjenRc",
+          group: "navigation",
+          when: "projen.inProject == true && activeViewlet == 'workbench.view.explorer'",
         },
       ],
     },

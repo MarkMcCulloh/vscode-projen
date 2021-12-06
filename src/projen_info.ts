@@ -17,11 +17,26 @@ export class ProjenInfo {
     const files = await vscode.workspace.findFiles(
       new vscode.RelativePattern(this.workspaceRoot, "*")
     );
-    files.push(
-      ...(await vscode.workspace.findFiles(
-        new vscode.RelativePattern(this.workspaceRoot, ".projen/*")
-      ))
+    const projenFolderFiles = await vscode.workspace.findFiles(
+      new vscode.RelativePattern(this.workspaceRoot, ".projen/*")
     );
+    files.push(...projenFolderFiles);
+
+    if (projenFolderFiles.length == 0) {
+      void vscode.commands.executeCommand(
+        "setContext",
+        "projen.inProject",
+        false
+      );
+
+      this.managedFiles = [];
+      this.dependencies = [];
+      this.decorator.files = [];
+
+      return;
+    }
+
+    void vscode.commands.executeCommand("setContext", "projen.inProject", true);
 
     const projenManaged: vscode.Uri[] = [];
     files.forEach((f) => {
@@ -60,7 +75,6 @@ export class ProjenInfo {
 
     this.decorator.files = projenManaged.map((f) => f.fsPath);
     this.decorator.files.push("");
-    this.decorator._onDidChangeFileDecorations.fire(projenManaged);
 
     this.managedFiles = projenManaged.map((file: vscode.Uri) => {
       const removedRoot = file.fsPath.replace(this.workspaceRoot, "");
