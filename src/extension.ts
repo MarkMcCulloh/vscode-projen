@@ -13,6 +13,38 @@ export function activate(context: vscode.ExtensionContext) {
   const projenInfo = new ProjenInfo(vscode.workspace.rootPath!);
   const projenWatcher = new ProjenWatcher(projenInfo);
 
+  function newOrActiveTerminal() {
+    let terminal = vscode.window.terminals.find((t) => t.name === "[projen]");
+    if (!terminal) {
+      terminal = vscode.window.createTerminal("[projen]");
+    } else if (
+      vscode.workspace
+        .getConfiguration("projen")
+        .get("terminal.alwaysChangeToWorkspaceDirectory")
+    ) {
+      terminal.sendText(getCDCommand(projenInfo.workspaceRoot));
+    }
+
+    terminal.show();
+    return terminal;
+  }
+
+  function getVSCodeTask(taskName: string) {
+    const task = projenInfo.tasks.find((t) => t.name === taskName)!;
+
+    return new vscode.Task(
+      { type: "projen", task: task.name },
+      vscode.TaskScope.Workspace,
+      task.name,
+      "projen",
+      new vscode.ProcessExecution("npx", ["projen", task.name], {
+        cwd: projenInfo.workspaceRoot,
+      }),
+      // TODO: Dynamic problem matchers
+      ["$tsc", "$eslint-compact"]
+    );
+  }
+
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.openProjenRc", async () => {
       const files = await vscode.workspace.findFiles(
@@ -120,17 +152,38 @@ export function activate(context: vscode.ExtensionContext) {
     treeDataProvider: filesView,
   });
 
+  vscode.tasks.registerTaskProvider("projen", {
+    provideTasks(_token?: vscode.CancellationToken) {
+      return projenInfo.tasks.map((t) => getVSCodeTask(t.name));
+    },
+    resolveTask(task: vscode.Task, _token?: vscode.CancellationToken) {
+      return task;
+    },
+  });
+
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.runTask", async (task?: string) => {
+      const inTerminal = vscode.workspace
+        .getConfiguration("projen")
+        .get("tasks.executeInTerminal");
+
       if (task) {
-        newOrActiveTerminal().sendText(`npx projen ${task}`);
+        if (inTerminal) {
+          newOrActiveTerminal().sendText(`npx projen ${task}`);
+        } else {
+          void vscode.tasks.executeTask(getVSCodeTask(task));
+        }
       } else {
         const selection = await vscode.window.showQuickPick(
           projenInfo.tasks.map((t) => t.name)
         );
 
         if (selection) {
-          newOrActiveTerminal().sendText(`npx projen ${selection}`);
+          if (inTerminal) {
+            newOrActiveTerminal().sendText(`npx projen ${selection}`);
+          } else {
+            void vscode.tasks.executeTask(getVSCodeTask(selection));
+          }
         }
       }
     })
@@ -148,17 +201,15 @@ export function activate(context: vscode.ExtensionContext) {
   void updateStuff();
 }
 
-function newOrActiveTerminal() {
-  if (vscode.window.activeTerminal) {
-    vscode.window.activeTerminal.show();
-
-    return vscode.window.activeTerminal;
-  } else {
-    const terminal = vscode.window.createTerminal("projen");
-    terminal.show();
-    return terminal;
-  }
-}
-
 // this method is called when your extension is deactivated
 export function deactivate() {}
+
+function getCDCommand(cwd: string): string {
+  if (process.platform === "win32") {
+    if (vscode.env.shell !== "cmd.exe") {
+      return `cd "${cwd.replace(/\\/g, "/")}"`;
+    }
+  }
+
+  return `cd "${cwd}"`;
+}

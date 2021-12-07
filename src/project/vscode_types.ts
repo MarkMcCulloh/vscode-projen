@@ -16,6 +16,7 @@ export interface VSCodeExtensionContributions {
   readonly viewsContainers?: { [location: string]: VSCodeViewContainer[] };
   readonly views?: { [location: string]: VSCodeView[] };
   readonly colors?: VSCodeColor[];
+  readonly taskDefinitions?: VSCodeTaskDefinitions[];
   // localizations?: VSCodeLocalization[];
   readonly customEditors?: readonly VSCodeWebviewEditor[];
   readonly codeActions?: readonly VSCodeCodeActionContribution[];
@@ -24,6 +25,13 @@ export interface VSCodeExtensionContributions {
   readonly startEntries?: VSCodeStartEntry[];
   readonly notebooks?: VSCodeNotebookEntry[];
   readonly notebookRenderer?: VSCodeNotebookRendererContribution[];
+}
+
+export interface VSCodeTaskDefinitions {
+  type?: string;
+  required?: string[];
+  properties?: any;
+  when?: string;
 }
 
 export interface VSCodeConfigurationProperty {

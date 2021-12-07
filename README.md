@@ -4,6 +4,8 @@ Add some [projen](https://github.com/projen/projen) flavor to VSCode!
 
 *Currently in preview*
 
+While in preview, expect behaviors, defaults, and settings to change without deprecation notices. Keep on eye on the GitHub releases to see changes.
+
 ## Features
 
 - Commands

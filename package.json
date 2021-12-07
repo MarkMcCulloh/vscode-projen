@@ -65,6 +65,51 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "configuration": {
+      "title": "Projen Configuration",
+      "properties": {
+        "projen.tasks.executeInTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "When running a task, use the integrated terminal instead of the special task window."
+        },
+        "projen.terminal.alwaysChangeToWorkspaceDirectory": {
+          "type": "boolean",
+          "default": true,
+          "description": "Before running each command in the integrated terminal, always change the directory to the root."
+        },
+        "projen.managedFiles.decoration.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Darken and label projen-managed files in the explorer."
+        },
+        "projen.managedFiles.decoration.badge": {
+          "type": "string",
+          "default": "PJ",
+          "description": "MUST BE < 3 CHARACTERS. Text of the label applied to managed projen files. Can leave empty to remove."
+        },
+        "projen.managedFiles.decoration.themeColor": {
+          "type": "string",
+          "default": "gitDecoration.ignoredResourceForeground",
+          "description": "ThemeColor id to apply to managed files. Leave empty to not apply any color."
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "projen",
+        "required": [
+          "task"
+        ],
+        "when": "shellExecutionSupported && projen.inProject",
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "The projen task to execute"
+          }
+        }
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
