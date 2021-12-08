@@ -62,8 +62,10 @@ export class ProjenInfo {
             this.tasks = Object.values(taskData).map(
               (t: any) => new ProjenTask(t)
             );
+            this.tasks.sort((a, b) => a.name.localeCompare(b.name));
           } else if (f.fsPath.endsWith("deps.json")) {
             const depData = JSON.parse(fileContent).dependencies;
+            depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
 
             this.dependencies = depData.map(
               (d: any) => new ProjenDependency(d.name, d.type, d.version)
@@ -74,7 +76,6 @@ export class ProjenInfo {
     });
 
     this.decorator.files = projenManaged.map((f) => f.fsPath);
-    this.decorator.files.push("");
 
     this.managedFiles = projenManaged.map((file: vscode.Uri) => {
       const removedRoot = file.fsPath.replace(this.workspaceRoot, "");
@@ -86,6 +87,7 @@ export class ProjenInfo {
         return betterFile;
       }
     });
+    this.managedFiles.sort();
 
     this.decorator._onDidChangeFileDecorations.fire(projenManaged);
   }

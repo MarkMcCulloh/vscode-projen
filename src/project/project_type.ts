@@ -33,7 +33,13 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
   constructor(options: VSCodeExtensionProjectOptions) {
     super(options);
 
+    this.addExcludeFromCleanup("test/**");
+
+    const esbuildBase =
+      "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node";
+
     this.addDeps("@types/vscode");
+    this.addDevDeps("vsce", "esbuild");
 
     this.vscodeIgnore = new IgnoreFile(this, ".vscodeignore");
     this.vscodeIgnore.addPatterns(
@@ -44,7 +50,13 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       "**/tsconfig.json",
       "**/.eslintrc.json",
       "**/*.map",
-      "**/*.ts"
+      "**/*.ts",
+      "node_modules/",
+      "dist/",
+      "test/",
+      "test-reports/",
+      "coverage/",
+      ".projen/"
     );
     this.gitignore.addPatterns("out", "*.vsix", ".vscode-test");
 
@@ -62,6 +74,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("contributes", options.contributes);
 
     if (this.jest) {
+      // look at https://github.com/stylelint/vscode-stylelint/blob/main/.github/workflows/testing.yml#L72
       this.addDevDeps("@vscode/test-electron", "jest-runner-vscode");
       this.jest.config.runner = "vscode";
       this.jest.config.globals["ts-jest"] = {
@@ -75,11 +88,10 @@ module.exports = {
   // Additional arguments to pass to VS Code
   launchArgs: [
     '--new-window',
-    '--disable-extensions',
-    '--no-sandbox'
+    '--disable-extensions'
   ],
 }
-          `.split("\n"),
+`.split("\n"),
       });
     }
 
@@ -127,8 +139,12 @@ module.exports = {
         },
       });
 
+      this.compileTask.reset("tsc --noEmit");
+      this.compileTask.exec(esbuildBase);
+
       const packageTask = this.tasks.tryFind("package")!;
       packageTask.exec("mkdir -p dist");
+      packageTask.exec(`${esbuildBase} --minify`);
       packageTask.exec("vsce package -o dist/extension.vsix");
     }
   }

@@ -9,7 +9,7 @@ const project = new VSCodeExtensionProject({
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
   deps: [],
-  devDeps: ["@types/glob", "shx", "vsce"],
+  devDeps: ["@types/glob", "shx"],
   eslintOptions: {
     dirs: ["src"],
     devdirs: ["test"],
@@ -160,8 +160,7 @@ const project = new VSCodeExtensionProject({
   description: "Projen helpers and utilities",
   publisher: "MarkMcCulloh",
   preview: true,
-  // TODO: :(
-  jest: false,
+  jest: true,
 });
 
 project.synth();

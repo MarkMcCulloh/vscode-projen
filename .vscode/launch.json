@@ -9,7 +9,7 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "args": ["--disable-extensions", "--extensionDevelopmentPath=${workspaceFolder}", "${workspaceFolder}/test/sample-node-project"],
       "outFiles": ["${workspaceFolder}/lib/**/*.js"]
       //   "preLaunchTask": "npm: build"
     }
