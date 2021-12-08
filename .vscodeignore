@@ -7,3 +7,9 @@ src/**
 **/.eslintrc.json
 **/*.map
 **/*.ts
+node_modules/
+dist/
+test/
+test-reports/
+coverage/
+.projen/

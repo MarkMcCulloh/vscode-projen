@@ -5,6 +5,10 @@
       "type": "build"
     },
     {
+      "name": "@types/jest",
+      "type": "build"
+    },
+    {
       "name": "@types/node",
       "version": "^14.17.0",
       "type": "build"
@@ -17,6 +21,10 @@
     {
       "name": "@typescript-eslint/parser",
       "version": "^5",
+      "type": "build"
+    },
+    {
+      "name": "@vscode/test-electron",
       "type": "build"
     },
     {
@@ -49,6 +57,19 @@
       "type": "build"
     },
     {
+      "name": "jest",
+      "type": "build"
+    },
+    {
+      "name": "jest-junit",
+      "version": "^13",
+      "type": "build"
+    },
+    {
+      "name": "jest-runner-vscode",
+      "type": "build"
+    },
+    {
       "name": "json-schema",
       "type": "build"
     },
@@ -67,6 +88,10 @@
     },
     {
       "name": "shx",
+      "type": "build"
+    },
+    {
+      "name": "ts-jest",
       "type": "build"
     },
     {

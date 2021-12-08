@@ -74,48 +74,20 @@
     },
     "compile": {
       "name": "compile",
-      "description": "Only compile",
-      "steps": [
-        {
-          "exec": "tsc --noEmit"
-        },
-        {
-          "exec": "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node"
-        }
-      ]
+      "description": "Only compile"
     },
     "default": {
       "name": "default",
       "description": "Synthesize project files",
       "steps": [
         {
-          "exec": "ts-node --project tsconfig.dev.json .projenrc.ts"
-        }
-      ]
-    },
-    "eslint": {
-      "name": "eslint",
-      "description": "Runs eslint against the codebase",
-      "steps": [
-        {
-          "exec": "eslint --ext .ts,.tsx --fix --no-error-on-unmatched-pattern src test .projenrc.js"
+          "exec": "node .projenrc.js"
         }
       ]
     },
     "package": {
       "name": "package",
-      "description": "Creates the distribution package",
-      "steps": [
-        {
-          "exec": "mkdir -p dist"
-        },
-        {
-          "exec": "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --minify"
-        },
-        {
-          "exec": "vsce package -o dist/extension.vsix"
-        }
-      ]
+      "description": "Creates the distribution package"
     },
     "post-compile": {
       "name": "post-compile",
@@ -141,7 +113,7 @@
     },
     "release": {
       "name": "release",
-      "description": "Prepare a release from \"master\" branch",
+      "description": "Prepare a release from \"main\" branch",
       "env": {
         "RELEASE": "true"
       },
@@ -169,9 +141,6 @@
       "steps": [
         {
           "exec": "jest --passWithNoTests --all --updateSnapshot"
-        },
-        {
-          "spawn": "eslint"
         }
       ]
     },
@@ -234,7 +203,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vscode/test-electron esbuild eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jest-runner-vscode json-schema npm-check-updates prettier shx ts-jest ts-node typescript vsce @types/vscode"
+          "exec": "npm update jest jest-junit npm-check-updates standard-version"
         },
         {
           "exec": "npx projen"
@@ -271,15 +240,6 @@
         },
         {
           "exec": "npx projen"
-        }
-      ]
-    },
-    "watch": {
-      "name": "watch",
-      "description": "Watch & compile in the background",
-      "steps": [
-        {
-          "exec": "tsc --build -w"
         }
       ]
     }

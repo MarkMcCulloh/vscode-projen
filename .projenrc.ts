@@ -160,8 +160,7 @@ const project = new VSCodeExtensionProject({
   description: "Projen helpers and utilities",
   publisher: "MarkMcCulloh",
   preview: true,
-  // TODO: :(
-  jest: false,
+  jest: true,
 });
 
 project.synth();
