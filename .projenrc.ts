@@ -9,7 +9,7 @@ const project = new VSCodeExtensionProject({
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
   deps: [],
-  devDeps: ["@types/glob", "shx", "vsce"],
+  devDeps: ["@types/glob", "shx"],
   eslintOptions: {
     dirs: ["src"],
     devdirs: ["test"],

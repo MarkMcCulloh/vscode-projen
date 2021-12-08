@@ -33,7 +33,11 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
   constructor(options: VSCodeExtensionProjectOptions) {
     super(options);
 
+    const esbuildBase =
+      "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node";
+
     this.addDeps("@types/vscode");
+    this.addDevDeps("vsce", "esbuild");
 
     this.vscodeIgnore = new IgnoreFile(this, ".vscodeignore");
     this.vscodeIgnore.addPatterns(
@@ -75,11 +79,10 @@ module.exports = {
   // Additional arguments to pass to VS Code
   launchArgs: [
     '--new-window',
-    '--disable-extensions',
-    '--no-sandbox'
+    '--disable-extensions'
   ],
 }
-          `.split("\n"),
+`.split("\n"),
       });
     }
 
@@ -127,8 +130,12 @@ module.exports = {
         },
       });
 
+      this.compileTask.reset("tsc --noEmit");
+      this.compileTask.exec(esbuildBase);
+
       const packageTask = this.tasks.tryFind("package")!;
       packageTask.exec("mkdir -p dist");
+      packageTask.exec(`${esbuildBase} --minify`);
       packageTask.exec("vsce package -o dist/extension.vsix");
     }
   }
