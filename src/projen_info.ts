@@ -92,22 +92,25 @@ export class ProjenInfo {
           )
         ) {
           projenManaged.push(f);
-          if (f.fsPath.endsWith("tasks.json")) {
-            const taskData = JSON.parse(fileContent).tasks;
-
-            this.tasks = Object.values(taskData).map(
-              (t: any) => new ProjenTask(t)
-            );
-            this.tasks.sort((a, b) => a.name.localeCompare(b.name));
-          } else if (f.fsPath.endsWith("deps.json")) {
-            const depData = JSON.parse(fileContent).dependencies;
-            depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
-
-            this.dependencies = depData.map(
-              (d: any) => new ProjenDependency(d.name, d.type, d.version)
-            );
-          }
         }
+      }
+    });
+
+    projenManaged.forEach((f) => {
+      if (f.fsPath.endsWith("tasks.json")) {
+        const fileContent = fs.readFileSync(f.fsPath, "utf-8");
+        const taskData = JSON.parse(fileContent).tasks;
+
+        this.tasks = Object.values(taskData).map((t: any) => new ProjenTask(t));
+        this.tasks.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (f.fsPath.endsWith("deps.json")) {
+        const fileContent = fs.readFileSync(f.fsPath, "utf-8");
+        const depData = JSON.parse(fileContent).dependencies;
+        depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+        this.dependencies = depData.map(
+          (d: any) => new ProjenDependency(d.name, d.type, d.version)
+        );
       }
     });
 
