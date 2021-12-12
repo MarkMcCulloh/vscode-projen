@@ -125,20 +125,6 @@
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
     },
-    "publish:github": {
-      "name": "publish:github",
-      "description": "Publish this package to GitHub Releases",
-      "requiredEnv": [
-        "GITHUB_TOKEN",
-        "GITHUB_REPOSITORY",
-        "GITHUB_REF"
-      ],
-      "steps": [
-        {
-          "exec": "errout=$(mktemp); gh release create $(cat dist/releasetag.txt) -R $GITHUB_REPOSITORY -F dist/changelog.md -t $(cat dist/releasetag.txt) --target $GITHUB_REF 2> $errout && true; exitcode=$?; if [ $exitcode -ne 0 ] && ! grep -q \"Release.tag_name already exists\" $errout; then cat $errout; exit $exitcode; fi"
-        }
-      ]
-    },
     "release": {
       "name": "release",
       "description": "Prepare a release from \"master\" branch",
