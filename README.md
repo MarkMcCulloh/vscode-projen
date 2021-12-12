@@ -18,7 +18,7 @@ While in preview, expect behaviors, defaults, and settings to change without dep
   - List steps and subtasks (and their steps too)
 - Dependency List
   - List packages with types and pinned versions
-- Managed Files (Currently incomplete to avoid checking too many files)
+- Managed Files/Folders
   - Show list of files managed by projen (either directly or indirectly, like a lockfile)
   - De-emphasize files managed by projen in explorer and decorate it with "PJ"
 
