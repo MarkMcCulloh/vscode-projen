@@ -96,7 +96,7 @@ const project = new VSCodeExtensionProject({
         },
         {
           id: "projenFiles",
-          name: "Managed Files",
+          name: "Managed Files/Folders",
         },
       ],
     },

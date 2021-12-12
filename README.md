@@ -37,7 +37,6 @@ Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-p
 ## Current Limitations
 
 - Only works in a single-folder workspace with a projen project at the root
-- "Managed Files" only refers to files in the root and in the `.projen` folder (to avoid searching too many files)
 
 ## Planned Features
 

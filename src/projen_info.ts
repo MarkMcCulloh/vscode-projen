@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { posix } from "path";
 import * as vscode from "vscode";
 import { GeneratedFileDecorationProvider } from "./generated_file_decorator";
 
@@ -14,13 +15,12 @@ export class ProjenInfo {
   }
 
   async update() {
-    const files = await vscode.workspace.findFiles(
-      new vscode.RelativePattern(this.workspaceRoot, "*")
-    );
     const projenFolderFiles = await vscode.workspace.findFiles(
       new vscode.RelativePattern(this.workspaceRoot, ".projen/*")
     );
-    files.push(...projenFolderFiles);
+    const rootFiles = await vscode.workspace.findFiles(
+      new vscode.RelativePattern(this.workspaceRoot, "*")
+    );
 
     if (projenFolderFiles.length == 0) {
       void vscode.commands.executeCommand(
@@ -36,11 +36,47 @@ export class ProjenInfo {
       return;
     }
 
+    let files: vscode.Uri[] = [];
+    let verifiedFiles = false;
+
+    const fileManifestUri = projenFolderFiles.find((f) =>
+      f.fsPath.endsWith("files.json")
+    );
+    if (fileManifestUri) {
+      try {
+        const fileManifest = fs.readFileSync(fileManifestUri.fsPath, "utf-8");
+        const fileData: string[] = JSON.parse(fileManifest).files;
+        files = fileData.map((f) =>
+          vscode.Uri.file(posix.join(this.workspaceRoot, f))
+        );
+
+        // handles special cases
+        const specialFiles = rootFiles.filter(
+          (f) =>
+            f.fsPath.endsWith("package-lock.json") ||
+            f.fsPath.endsWith(".lock") ||
+            f.fsPath.endsWith("package.json")
+        );
+        if (specialFiles.length > 0) {
+          files.push(...specialFiles);
+        }
+
+        verifiedFiles = true;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (files.length === 0) {
+      files.push(...rootFiles, ...projenFolderFiles);
+    }
+
     void vscode.commands.executeCommand("setContext", "projen.inProject", true);
 
     const projenManaged: vscode.Uri[] = [];
     files.forEach((f) => {
       if (
+        verifiedFiles ||
         f.fsPath.endsWith("package-lock.json") ||
         f.fsPath.endsWith(".lock")
       ) {
@@ -75,6 +111,27 @@ export class ProjenInfo {
       }
     });
 
+    const directoryMap: any = {};
+    projenManaged.forEach((f) => {
+      const directory = f.fsPath
+        .replace(/\\/g, "/")
+        .split("/")
+        .slice(0, -1)
+        .join("/");
+      if (directoryMap[directory] !== undefined) {
+        directoryMap[directory]++;
+      } else {
+        directoryMap[directory] = 1;
+      }
+    });
+    const managedDirectories = Object.keys(directoryMap).filter((d) => {
+      const filesFromDir = fs.readdirSync(d);
+      return directoryMap[d] === filesFromDir.length;
+    });
+    if (managedDirectories.length > 0) {
+      projenManaged.push(...managedDirectories.map((d) => vscode.Uri.file(d)));
+    }
+
     this.decorator.files = projenManaged.map((f) => f.fsPath);
 
     this.managedFiles = projenManaged.map((file: vscode.Uri) => {
@@ -87,6 +144,7 @@ export class ProjenInfo {
         return betterFile;
       }
     });
+
     this.managedFiles.sort();
 
     this.decorator._onDidChangeFileDecorations.fire(projenManaged);
