@@ -20,15 +20,15 @@ While in preview, expect behaviors, defaults, and settings to change without dep
   - List packages with types and pinned versions
 - Managed Files/Folders
   - Show list of files managed by projen (either directly or indirectly, like a lockfile)
-  - De-emphasize files managed by projen in explorer and decorate it with "PJ"
+  - De-emphasize files managed by projen in explorer and decorate it with a "PJ" badge
 
 ## Screenshots
 
-![Basic Overview](./screenshots/ss_1.png)
+![Basic Overview](./screenshots/overview.png)
 
-![Deps and Files](./screenshots/ss_2.png)
+![Files](./screenshots/files.png)
 
-![Commands](./screenshots/ss_3.png)
+![Tasks](./screenshots/tasks.png)
 
 ## Changelog
 
