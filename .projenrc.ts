@@ -163,4 +163,8 @@ const project = new VSCodeExtensionProject({
   jest: true,
 });
 
+project.addFields({
+  browser: "./lib/extension.js",
+});
+
 project.synth();

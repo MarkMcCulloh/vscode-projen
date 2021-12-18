@@ -10,7 +10,10 @@ import { ProjenWatcher } from "./projen_watcher";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  const projenInfo = new ProjenInfo(vscode.workspace.rootPath!);
+  if (!vscode.workspace.workspaceFolders?.[0]) {
+    return;
+  }
+  const projenInfo = new ProjenInfo(vscode.workspace.workspaceFolders[0].uri);
   const projenWatcher = new ProjenWatcher(projenInfo);
 
   function newOrActiveTerminal() {
@@ -38,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
       task.name,
       "projen",
       new vscode.ProcessExecution("npx", ["projen", task.name], {
-        cwd: projenInfo.workspaceRoot,
+        cwd: projenInfo.workspaceRoot.fsPath,
       }),
       // TODO: Dynamic problem matchers
       ["$tsc", "$eslint-compact"]
@@ -49,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("projen.openProjenRc", async () => {
       const files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(
-          vscode.workspace.rootPath!,
+          projenInfo.workspaceRoot,
           ".projenrc.{ts,js}"
         )
       );
@@ -204,10 +207,10 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
-function getCDCommand(cwd: string): string {
-  if (process.platform === "win32") {
+function getCDCommand(cwd: vscode.Uri): string {
+  if (process && global.process.platform === "win32") {
     if (vscode.env.shell !== "cmd.exe") {
-      return `cd "${cwd.replace(/\\/g, "/")}"`;
+      return `cd "${cwd.fsPath.replace(/\\/g, "/")}"`;
     }
   }
 
