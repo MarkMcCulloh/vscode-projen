@@ -126,7 +126,16 @@ module.exports = {
               },
             },
             {
-              name: "Publish",
+              name: "Publish VSX Registry",
+              uses: "HaaLeo/publish-vscode-extension@v0",
+              with: {
+                pat: "${{ secrets.VSX_REGISTRY_TOKEN }}",
+                extensionFile: "./dist/extension.vsix",
+                packagePath: "",
+              },
+            },
+            {
+              name: "Publish to VS Marketplace",
               uses: "HaaLeo/publish-vscode-extension@v0",
               with: {
                 pat: "${{ secrets.VS_MARKETPLACE_TOKEN }}",
