@@ -3,11 +3,11 @@ import { GeneratedFileDecorationProvider } from "./generated_file_decorator";
 
 async function readTextFromFile(uri: vscode.Uri) {
   const readData = await vscode.workspace.fs.readFile(uri);
-  return Buffer.from(readData).toString("utf8");
+  return new TextDecoder("utf-8").decode(readData);
 }
 
 export class ProjenInfo {
-  public managedFiles: string[] = [];
+  public managedFiles: vscode.Uri[] = [];
   public tasks: ProjenTask[] = [];
   public dependencies: ProjenDependency[] = [];
   decorator: GeneratedFileDecorationProvider;
@@ -43,7 +43,7 @@ export class ProjenInfo {
     let verifiedFiles = false;
 
     const fileManifestUri = projenFolderFiles.find((f) =>
-      f.fsPath.endsWith("files.json")
+      f.path.endsWith("files.json")
     );
     if (fileManifestUri) {
       try {
@@ -54,9 +54,9 @@ export class ProjenInfo {
         // handles special cases
         const specialFiles = rootFiles.filter(
           (f) =>
-            f.fsPath.endsWith("package-lock.json") ||
-            f.fsPath.endsWith(".lock") ||
-            f.fsPath.endsWith("package.json")
+            f.path.endsWith("package-lock.json") ||
+            f.path.endsWith(".lock") ||
+            f.path.endsWith("package.json")
         );
         if (specialFiles.length > 0) {
           files.push(...specialFiles);
@@ -78,8 +78,8 @@ export class ProjenInfo {
     for (const f of files) {
       if (
         verifiedFiles ||
-        f.fsPath.endsWith("package-lock.json") ||
-        f.fsPath.endsWith(".lock")
+        f.path.endsWith("package-lock.json") ||
+        f.path.endsWith(".lock")
       ) {
         // TODO handle lockfiles in a smarter way
         // Since dependencies are managed by projen, a lockfile is as well (kinda)
@@ -98,13 +98,13 @@ export class ProjenInfo {
     }
 
     for (const f of projenManaged) {
-      if (f.fsPath.endsWith("tasks.json")) {
+      if (f.path.endsWith("tasks.json")) {
         const fileContent = await readTextFromFile(f);
         const taskData = JSON.parse(fileContent).tasks;
 
         this.tasks = Object.values(taskData).map((t: any) => new ProjenTask(t));
         this.tasks.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (f.fsPath.endsWith("deps.json")) {
+      } else if (f.path.endsWith("deps.json")) {
         const fileContent = await readTextFromFile(f);
         const depData = JSON.parse(fileContent).dependencies;
         depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -117,47 +117,37 @@ export class ProjenInfo {
 
     const directoryMap: any = {};
     projenManaged.forEach((f) => {
-      const directory = f.fsPath
-        .replace(/\\/g, "/")
-        .split("/")
-        .slice(0, -1)
-        .join("/");
-      if (directoryMap[directory] !== undefined) {
-        directoryMap[directory]++;
+      const directory = f.with({
+        path: f.path.replace(/\\/g, "/").split("/").slice(0, -1).join("/"),
+      });
+
+      if (directoryMap[directory.toString()] !== undefined) {
+        directoryMap[directory.toString()]++;
       } else {
-        directoryMap[directory] = 1;
+        directoryMap[directory.toString()] = 1;
       }
     });
 
-    let managedDirectories: string[] = [];
+    let managedDirectories: vscode.Uri[] = [];
     for (const d of Object.keys(directoryMap)) {
+      const dirUri = vscode.Uri.parse(d);
       const filesFromDir = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(d, "*")
+        new vscode.RelativePattern(dirUri, "*")
       );
 
       if (directoryMap[d] === filesFromDir.length) {
-        managedDirectories.push(d);
+        managedDirectories.push(dirUri);
       }
     }
 
     if (managedDirectories.length > 0) {
-      projenManaged.push(...managedDirectories.map((d) => vscode.Uri.file(d)));
+      projenManaged.push(...managedDirectories);
     }
 
-    this.decorator.files = projenManaged.map((f) => f.fsPath);
+    projenManaged.sort((a, b) => a.toString().localeCompare(b.toString()));
 
-    this.managedFiles = projenManaged.map((file: vscode.Uri) => {
-      const removedRoot = file.fsPath.replace(this.workspaceRoot.fsPath, "");
-      const betterFile = removedRoot.replace(/\\/g, "/");
-
-      if (betterFile.startsWith("/")) {
-        return betterFile.slice(1);
-      } else {
-        return betterFile;
-      }
-    });
-
-    this.managedFiles.sort();
+    this.decorator.files = projenManaged.map((f) => f.toString());
+    this.managedFiles = projenManaged;
 
     this.decorator._onDidChangeFileDecorations.fire(projenManaged);
   }

@@ -32,15 +32,22 @@ export function activate(context: vscode.ExtensionContext) {
     return terminal;
   }
 
-  function getVSCodeTask(taskName: string) {
-    const task = projenInfo.tasks.find((t) => t.name === taskName)!;
+  function getVSCodeTask(taskName?: string) {
+    let args = ["projen"];
+    let name;
+    if (!taskName) {
+      name = "run";
+    } else {
+      name = taskName;
+      args.push(taskName);
+    }
 
     return new vscode.Task(
-      { type: "projen", task: task.name },
+      { type: "projen", task: name },
       vscode.TaskScope.Workspace,
-      task.name,
+      name,
       "projen",
-      new vscode.ProcessExecution("npx", ["projen", task.name], {
+      new vscode.ProcessExecution("npx", args, {
         cwd: projenInfo.workspaceRoot.fsPath,
       }),
       // TODO: Dynamic problem matchers
@@ -66,7 +73,15 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.run", () => {
-      newOrActiveTerminal().sendText("npx projen");
+      const inTerminal = vscode.workspace
+        .getConfiguration("projen")
+        .get("tasks.executeInTerminal");
+
+      if (inTerminal) {
+        newOrActiveTerminal().sendText(`npx projen`);
+      } else {
+        void vscode.tasks.executeTask(getVSCodeTask());
+      }
     })
   );
 

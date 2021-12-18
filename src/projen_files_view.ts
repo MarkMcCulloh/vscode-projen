@@ -18,7 +18,7 @@ export class ProjenFileView implements vscode.TreeDataProvider<File> {
   async getChildren(element?: File): Promise<File[]> {
     if (!element) {
       return Promise.resolve(
-        this.projenInfo.managedFiles.map((file: string) => new File(file))
+        this.projenInfo.managedFiles.map((file: vscode.Uri) => new File(file))
       );
     }
 
@@ -28,9 +28,9 @@ export class ProjenFileView implements vscode.TreeDataProvider<File> {
 
 class File extends vscode.TreeItem {
   iconPath = new vscode.ThemeIcon("file");
-  constructor(public readonly file: any) {
+  constructor(public readonly file: vscode.Uri) {
     super(file, vscode.TreeItemCollapsibleState.None);
 
-    this.tooltip = "";
+    this.iconPath = vscode.ThemeIcon.File;
   }
 }

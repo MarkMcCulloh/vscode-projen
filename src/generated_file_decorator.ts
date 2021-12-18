@@ -41,7 +41,7 @@ export class GeneratedFileDecorationProvider
       return null;
     }
 
-    if (this.files.includes(uri.fsPath)) {
+    if (this.files.includes(uri.toString())) {
       const newBadge = vscode.workspace
         .getConfiguration("projen")
         .get("managedFiles.decoration.badge") as string;
