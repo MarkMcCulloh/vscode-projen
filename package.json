@@ -32,14 +32,14 @@
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "@vscode/test-electron": "^1.6.2",
-    "esbuild": "^0.13.15",
+    "esbuild": "^0.14.5",
     "eslint": "^8",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-node": "^0.3.6",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.3",
+    "jest": "^27.4.5",
     "jest-junit": "^13",
     "jest-runner-vscode": "^2.2.0",
     "json-schema": "^0.4.0",
@@ -47,13 +47,13 @@
     "prettier": "^2.5.1",
     "projen": "^0.40.4",
     "shx": "^0.3.3",
-    "ts-jest": "^27.1.0",
+    "ts-jest": "^27.1.2",
     "ts-node": "^9",
-    "typescript": "^4.5.2",
-    "vsce": "^2.5.1"
+    "typescript": "^4.5.4",
+    "vsce": "^2.5.3"
   },
   "dependencies": {
-    "@types/vscode": "^1.62.0"
+    "@types/vscode": "^1.63.1"
   },
   "bundledDependencies": [],
   "engines": {
