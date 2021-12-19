@@ -8,8 +8,14 @@ const project = new VSCodeExtensionProject({
   repository: "https://github.com/MarkMcCulloh/vscode-projen.git",
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
-  deps: [],
-  devDeps: ["@types/glob", "shx"],
+  deps: ["gunzip-maybe", "tar-stream", "pacote"],
+  devDeps: [
+    "@types/glob",
+    "shx",
+    "@types/gunzip-maybe",
+    "@types/tar-stream",
+    "@types/pacote",
+  ],
   eslintOptions: {
     dirs: ["src"],
     devdirs: ["test"],
@@ -29,8 +35,15 @@ const project = new VSCodeExtensionProject({
   ],
   contributes: {
     configuration: {
-      title: "Projen Configuration",
+      title: "Projen",
       properties: {
+        "projen.projects.externalLibraries": {
+          type: "string",
+          editPresentation: "multilineText",
+          default: "",
+          description:
+            "When creating a new project, these external libraries will show as options.\nSeparate with newlines.\nMay use `|` after library name to add documentation (e.g. `vue-projen | Vue templates`).",
+        },
         "projen.tasks.executeInTerminal": {
           type: "boolean",
           default: false,
@@ -46,13 +59,13 @@ const project = new VSCodeExtensionProject({
         "projen.managedFiles.decoration.enable": {
           type: "boolean",
           default: true,
-          description: "Darken and label projen-managed files in the explorer.",
+          description: "Label and darken projen-managed files in the explorer.",
         },
         "projen.managedFiles.decoration.badge": {
           type: "string",
           default: "PJ",
           description:
-            "MUST BE < 3 CHARACTERS. Text of the label applied to managed projen files. Can leave empty to remove.",
+            "MUST BE < 3 CHARACTERS.\nText of the label applied to managed projen files. Can leave empty to remove.",
         },
         "projen.managedFiles.decoration.themeColor": {
           type: "string",
@@ -122,10 +135,6 @@ const project = new VSCodeExtensionProject({
       {
         command: "projen.new",
         title: "Generate Projen Project",
-      },
-      {
-        command: "projen.newExternal",
-        title: "Generate External Projen Project",
       },
     ],
     menus: {

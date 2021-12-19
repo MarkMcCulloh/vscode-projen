@@ -37,7 +37,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     super(options);
 
     const esbuildBase =
-      "esbuild ./src/extension.ts --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --bundle";
+      "esbuild ./src/extension.ts --outfile=lib/extension.js --external:node-gyp --external:vscode --format=cjs --platform=node --bundle";
 
     this.addDeps("@types/vscode");
     this.addDevDeps("vsce", "esbuild");

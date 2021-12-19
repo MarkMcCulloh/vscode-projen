@@ -38,6 +38,7 @@ export interface VSCodeConfigurationProperty {
   readonly description: string;
   readonly type: string | string[];
   readonly default?: any;
+  readonly editPresentation?: string;
 }
 
 export interface VSCodeConfiguration {

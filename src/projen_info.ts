@@ -36,6 +36,29 @@ export class ProjenInfo {
       this.dependencies = [];
       this.decorator.files = [];
 
+      if (
+        rootFiles.length === 0 &&
+        (
+          await vscode.workspace.findFiles(
+            new vscode.RelativePattern(this.workspaceRoot, "**"),
+            undefined,
+            1
+          )
+        ).length === 0
+      ) {
+        // in an empty workspace
+
+        const choice = await vscode.window.showInformationMessage(
+          "Looks like you're in an empty folder, would you like to generate a project with projen?",
+          "Sure!",
+          "No Thanks!"
+        );
+
+        if (choice === "Sure!") {
+          void vscode.commands.executeCommand("projen.new");
+        }
+      }
+
       return;
     }
 

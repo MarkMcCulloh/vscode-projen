@@ -30,6 +30,8 @@ While in preview, expect behaviors, defaults, and settings to change without dep
 
 ![Tasks](./screenshots/tasks.png)
 
+![Project Types](./screenshots/project-types.png)
+
 ## Changelog
 
 Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).

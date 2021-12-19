@@ -5,12 +5,24 @@
       "type": "build"
     },
     {
+      "name": "@types/gunzip-maybe",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "type": "build"
     },
     {
       "name": "@types/node",
       "version": "^12",
+      "type": "build"
+    },
+    {
+      "name": "@types/pacote",
+      "type": "build"
+    },
+    {
+      "name": "@types/tar-stream",
       "type": "build"
     },
     {
@@ -101,6 +113,18 @@
     },
     {
       "name": "@types/vscode",
+      "type": "runtime"
+    },
+    {
+      "name": "gunzip-maybe",
+      "type": "runtime"
+    },
+    {
+      "name": "pacote",
+      "type": "runtime"
+    },
+    {
+      "name": "tar-stream",
       "type": "runtime"
     }
   ],

@@ -27,8 +27,11 @@
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
+    "@types/gunzip-maybe": "^1.4.0",
     "@types/jest": "*",
     "@types/node": "^12",
+    "@types/pacote": "^11.1.1",
+    "@types/tar-stream": "^2.2.2",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
     "esbuild": "^0.14.5",
@@ -51,7 +54,10 @@
     "vsce": "^2.5.3"
   },
   "dependencies": {
-    "@types/vscode": "^1.63.1"
+    "@types/vscode": "^1.63.1",
+    "gunzip-maybe": "^1.4.2",
+    "pacote": "^12.0.2",
+    "tar-stream": "^2.2.0"
   },
   "bundledDependencies": [],
   "engines": {
@@ -111,8 +117,14 @@
   ],
   "contributes": {
     "configuration": {
-      "title": "Projen Configuration",
+      "title": "Projen",
       "properties": {
+        "projen.projects.externalLibraries": {
+          "type": "string",
+          "editPresentation": "multilineText",
+          "default": "",
+          "description": "When creating a new project, these external libraries will show as options.\nSeparate with newlines.\nMay use `|` after library name to add documentation (e.g. `vue-projen | Vue templates`)."
+        },
         "projen.tasks.executeInTerminal": {
           "type": "boolean",
           "default": false,
@@ -126,12 +138,12 @@
         "projen.managedFiles.decoration.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Darken and label projen-managed files in the explorer."
+          "description": "Label and darken projen-managed files in the explorer."
         },
         "projen.managedFiles.decoration.badge": {
           "type": "string",
           "default": "PJ",
-          "description": "MUST BE < 3 CHARACTERS. Text of the label applied to managed projen files. Can leave empty to remove."
+          "description": "MUST BE < 3 CHARACTERS.\nText of the label applied to managed projen files. Can leave empty to remove."
         },
         "projen.managedFiles.decoration.themeColor": {
           "type": "string",
@@ -202,10 +214,6 @@
       {
         "command": "projen.new",
         "title": "Generate Projen Project"
-      },
-      {
-        "command": "projen.newExternal",
-        "title": "Generate External Projen Project"
       }
     ],
     "menus": {

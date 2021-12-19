@@ -1,11 +1,39 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { getProjectIds } from "./jsii/fetcher";
 import { ProjenDependencyView } from "./projen_dependency_view";
 import { ProjenFileView } from "./projen_files_view";
 import { ProjenInfo } from "./projen_info";
 import { ProjenTaskView } from "./projen_task_view";
 import { ProjenWatcher } from "./projen_watcher";
+
+function useTerminal() {
+  return vscode.workspace
+    .getConfiguration("projen")
+    .get("tasks.executeInTerminal");
+}
+
+function availableProjectLibraries() {
+  const fromConfig =
+    vscode.workspace
+      .getConfiguration("projen")
+      .get("projects.externalLibraries") ?? "";
+
+  const externalOptions = `${fromConfig}\n[External Library...]`.trim();
+
+  return [
+    "Projen",
+    ...externalOptions.split("\n"),
+    // None of these seem to work with the current projen version :(
+    // "@cdktf/provider-project | To create prebuilt provider packages for Terraform CDK",
+    // "cdk-appsync-project | AWS AppSync API project that uses the cdk-appsync-transformer",
+    // "@svelte-up/projen-rust-project | Cargo-based rustlang projects",
+    // "p6-projen-project-awesome-list | Setup an Awesome List repository",
+    // "yarn-projen | Manage monorepos using Yarn workspaces",
+    // "lerna-projen | Manage monorepos using Lern",
+  ];
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -32,15 +60,8 @@ export function activate(context: vscode.ExtensionContext) {
     return terminal;
   }
 
-  function getVSCodeTask(taskName?: string) {
-    let args = ["projen"];
-    let name;
-    if (!taskName) {
-      name = "run";
-    } else {
-      name = taskName;
-      args.push(taskName);
-    }
+  function getVSCodeTask(name: string, ...args: string[]) {
+    args.unshift("projen");
 
     return new vscode.Task(
       { type: "projen", task: name },
@@ -50,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
       new vscode.ProcessExecution("npx", args, {
         cwd: projenInfo.workspaceRoot.fsPath,
       }),
-      // TODO: Dynamic problem matchers
+      // TODO: Use dynamic problem matchers
       ["$tsc", "$eslint-compact"]
     );
   }
@@ -73,87 +94,127 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.run", () => {
-      const inTerminal = vscode.workspace
-        .getConfiguration("projen")
-        .get("tasks.executeInTerminal");
-
-      if (inTerminal) {
+      if (useTerminal()) {
         newOrActiveTerminal().sendText(`npx projen`);
       } else {
-        void vscode.tasks.executeTask(getVSCodeTask());
+        void vscode.tasks.executeTask(getVSCodeTask("projen"));
       }
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("projen.new", async () => {
-      const projectTypeListWithDescription = [
-        "awscdk-app-java - AWS CDK app in Java.",
-        "awscdk-app-ts - AWS CDK app in TypeScript.",
-        "awscdk-construct - AWS CDK construct library project.",
-        "cdk8s-app-ts - CDK8s app in TypeScript.",
-        "cdk8s-construct - CDK8s construct library project.",
-        "cdktf-construct - CDKTF construct library project.",
-        "java - Java project.",
-        "jsii - Multi-language jsii library project.",
-        "nextjs - Next.js project without TypeScript.",
-        "nextjs-ts - Next.js project with TypeScript.",
-        "node - Node.js project.",
-        "project - Base project.",
-        "python - Python project.",
-        "react - React project without TypeScript.",
-        "react-ts - React project with TypeScript.",
-        "typescript - TypeScript project.",
-        "typescript-app - TypeScript app.",
-      ];
+    vscode.commands.registerCommand(
+      "projen.new",
+      async (projectLib?: string, projectType?: string) => {
+        const rawProjectLibSelection: string | undefined =
+          projectLib ??
+          (await vscode.window.showQuickPick(availableProjectLibraries(), {
+            title: "Project Library",
+            placeHolder: "Select library to view available projects",
+          }));
 
-      const selection = await vscode.window.showQuickPick(
-        projectTypeListWithDescription
-      );
+        if (!rawProjectLibSelection) {
+          return;
+        }
 
-      const additionalArgs = await vscode.window.showInputBox({
-        prompt: "(Optional) Additional arguments to pass to 'projen new'",
-      });
+        let projectLibSelection = rawProjectLibSelection
+          .toLowerCase()
+          .split("|")[0]
+          .trim();
 
-      if (selection) {
-        const projectType = selection.split(" - ")[0];
-        newOrActiveTerminal().sendText(
-          `npx projen new ${projectType} ${additionalArgs ?? ""}`
-        );
-      }
-    })
-  );
+        if (projectLibSelection === "[external library...]") {
+          const customLib = await vscode.window.showInputBox({
+            prompt: "Specify external library",
+            title: "External Library Selection",
+          });
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand("projen.newExternal", async () => {
-      const selection = await vscode.window.showInputBox({
-        prompt:
-          "External project (e.g. cdk-appsync-project or cdk-appsync-project@1.1.3)",
-      });
+          if (!customLib) {
+            return;
+          }
 
-      if (selection) {
-        const projectId = await vscode.window.showInputBox({
-          prompt:
-            "(Optional if only one project available) Project ID (e.g. cool-ts-app)",
-        });
+          projectLibSelection = customLib.toLowerCase().trim();
+        }
+
+        let projects = projectType
+          ? []
+          : await getProjectIds(projectLibSelection);
+
+        let projectId: string | undefined = projectType;
+
+        if (projects.length > 1) {
+          // If there are multiple projects, we need a pjid
+          projects = projects.filter((p) => !!p.pjid);
+        }
+
+        if (projects.length === 0 && !projectType) {
+          void vscode.window.showErrorMessage(
+            `Unable to find available project types from "${projectLibSelection}"`
+          );
+          return;
+        }
+
+        if (projects.length > 0) {
+          const projectPickerPromise = new Promise<string | undefined>(
+            (resolve) => {
+              const picker = vscode.window.createQuickPick();
+              picker.canSelectMany = false;
+              picker.title = "Project Type Selection";
+              picker.placeholder = "Select project id";
+              picker.matchOnDetail = true;
+              picker.items = projects.map((project) => ({
+                detail: project.pjid ?? "",
+                label: project.summary ?? project.typeName,
+              }));
+
+              picker.onDidAccept(() => {
+                if (picker.selectedItems && picker.selectedItems.length > 0) {
+                  resolve(picker.selectedItems[0].detail);
+                  picker.hide();
+                }
+              });
+              picker.onDidHide(() => {
+                resolve(undefined);
+                picker.dispose();
+              });
+
+              picker.show();
+            }
+          );
+
+          projectId = await projectPickerPromise;
+        }
+
+        if (projectId === undefined) {
+          return;
+        }
 
         const additionalArgs = await vscode.window.showInputBox({
           prompt: "(Optional) Additional arguments to pass to 'projen new'",
         });
 
+        if (additionalArgs === undefined) {
+          return;
+        }
+
         let args = "";
+        if (projectLibSelection !== "projen") {
+          args += ` --from ${projectLibSelection}`;
+        }
         if (projectId) {
           args += " " + projectId;
         }
         if (additionalArgs) {
           args += " " + additionalArgs;
         }
+        args = args.trim();
 
-        newOrActiveTerminal().sendText(
-          `npx projen new --from ${selection}${args}`
-        );
+        if (useTerminal()) {
+          newOrActiveTerminal().sendText(`npx projen new ${args}`);
+        } else {
+          void vscode.tasks.executeTask(getVSCodeTask("new", "new", args));
+        }
       }
-    })
+    )
   );
 
   const taskView = new ProjenTaskView(projenInfo);
@@ -172,7 +233,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.tasks.registerTaskProvider("projen", {
     provideTasks(_token?: vscode.CancellationToken) {
-      return projenInfo.tasks.map((t) => getVSCodeTask(t.name));
+      return projenInfo.tasks.map((t) => getVSCodeTask(t.name, t.name));
     },
     resolveTask(task: vscode.Task, _token?: vscode.CancellationToken) {
       return task;
@@ -181,15 +242,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.runTask", async (task?: string) => {
-      const inTerminal = vscode.workspace
-        .getConfiguration("projen")
-        .get("tasks.executeInTerminal");
-
       if (task) {
-        if (inTerminal) {
+        if (useTerminal()) {
           newOrActiveTerminal().sendText(`npx projen ${task}`);
         } else {
-          void vscode.tasks.executeTask(getVSCodeTask(task));
+          void vscode.tasks.executeTask(getVSCodeTask(task, task));
         }
       } else {
         const selection = await vscode.window.showQuickPick(
@@ -197,10 +254,10 @@ export function activate(context: vscode.ExtensionContext) {
         );
 
         if (selection) {
-          if (inTerminal) {
+          if (useTerminal()) {
             newOrActiveTerminal().sendText(`npx projen ${selection}`);
           } else {
-            void vscode.tasks.executeTask(getVSCodeTask(selection));
+            void vscode.tasks.executeTask(getVSCodeTask(selection, selection));
           }
         }
       }
