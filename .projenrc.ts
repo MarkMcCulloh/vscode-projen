@@ -8,7 +8,7 @@ const project = new VSCodeExtensionProject({
   repository: "https://github.com/MarkMcCulloh/vscode-projen.git",
   projenrcTs: true,
   entrypoint: "./lib/extension.js",
-  deps: ["gunzip-maybe", "tar-stream", "pacote"],
+  deps: ["gunzip-maybe", "tar-stream", "pacote", "registry-url"],
   devDeps: [
     "@types/glob",
     "shx",

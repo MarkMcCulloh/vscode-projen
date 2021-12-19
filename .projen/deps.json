@@ -124,6 +124,10 @@
       "type": "runtime"
     },
     {
+      "name": "registry-url",
+      "type": "runtime"
+    },
+    {
       "name": "tar-stream",
       "type": "runtime"
     }

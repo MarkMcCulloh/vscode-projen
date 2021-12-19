@@ -1,6 +1,7 @@
 import { Readable } from "stream";
 import gunzip from "gunzip-maybe";
 import { tarball } from "pacote";
+import registryUrl from "registry-url";
 import { extract } from "tar-stream";
 
 export interface RemoteProjenProjectInfo {
@@ -77,7 +78,14 @@ export async function getProjectIds(
 
 export async function getJSII(spec: string): Promise<any> {
   return new Promise(async (resolve, _reject) => {
-    const tarballData = await tarball(spec);
+    let scope;
+    if (spec.startsWith("@")) {
+      scope = spec.split("/")[0];
+    }
+
+    const tarballData = await tarball(spec, {
+      registry: registryUrl(scope),
+    });
 
     const tarballStream = new Readable();
     tarballStream._read = () => {}; // _read is required but you can noop it
