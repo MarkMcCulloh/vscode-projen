@@ -159,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
               const picker = vscode.window.createQuickPick();
               picker.canSelectMany = false;
               picker.title = "Project Type Selection";
-              picker.placeholder = "Select project id";
+              picker.placeholder = "Select project type";
               picker.matchOnDetail = true;
               picker.items = projects.map((project) => ({
                 detail: project.pjid ?? "",
@@ -211,7 +211,9 @@ export function activate(context: vscode.ExtensionContext) {
         if (useTerminal()) {
           newOrActiveTerminal().sendText(`npx projen new ${args}`);
         } else {
-          void vscode.tasks.executeTask(getVSCodeTask("new", "new", args));
+          void vscode.tasks.executeTask(
+            getVSCodeTask("new", "new", ...args.split(" "))
+          );
         }
       }
     )
