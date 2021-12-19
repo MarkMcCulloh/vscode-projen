@@ -62,7 +62,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF: ${{ github.ref }}
   release_marketplace:
-    name: Publish to VSCode Marketplace
+    name: Publish Extension
     needs: release_github
     runs-on: ubuntu-latest
     permissions:
@@ -73,7 +73,7 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Publish VSX Registry
+      - name: Publish to Open VSX Registry
         uses: HaaLeo/publish-vscode-extension@v0
         with:
           pat: ${{ secrets.VSX_REGISTRY_TOKEN }}

@@ -17,7 +17,6 @@
 /.projen/files.json linguist-generated
 /.projen/tasks.json linguist-generated
 /.vscodeignore linguist-generated
-/jest-runner-vscode.config.js linguist-generated
 /LICENSE linguist-generated
 /package-lock.json linguist-generated
 /package.json linguist-generated

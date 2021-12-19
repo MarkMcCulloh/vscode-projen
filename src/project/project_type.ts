@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { FileBase, IgnoreFile, TextFile } from "projen";
-import { JobPermission } from "projen/lib/github/workflows-model";
+import { IgnoreFile } from "projen";
+import { JobPermission, JobStep } from "projen/lib/github/workflows-model";
 import { Release } from "projen/lib/release";
 import {
   TypeScriptAppProject,
@@ -13,7 +13,10 @@ import {
 
 export interface VSCodeExtensionProjectOptions
   extends TypeScriptProjectOptions {
-  readonly releaseToVSMarketplace?: boolean;
+  readonly publishToVSMarketplace?: boolean;
+  readonly publishToOpenVSXRegistry?: boolean;
+  readonly vsMarketplaceToken?: string;
+  readonly vsxRegistryToken?: string;
   readonly vscodeVersion: string;
   readonly displayName: string;
   readonly publisher: string;
@@ -33,10 +36,8 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
   constructor(options: VSCodeExtensionProjectOptions) {
     super(options);
 
-    this.addExcludeFromCleanup("test/**");
-
     const esbuildBase =
-      "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node";
+      "esbuild ./src/extension.ts --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --bundle";
 
     this.addDeps("@types/vscode");
     this.addDevDeps("vsce", "esbuild");
@@ -73,33 +74,11 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("activationEvents", options.activationEvents);
     this.package.addField("contributes", options.contributes);
 
-    if (this.jest) {
-      // look at https://github.com/stylelint/vscode-stylelint/blob/main/.github/workflows/testing.yml#L72
-      this.addDevDeps("@vscode/test-electron", "jest-runner-vscode");
-      this.jest.config.runner = "vscode";
-      this.jest.config.globals["ts-jest"] = {
-        tsconfig: `<rootDir>/${this.tsconfigDev.file.path}`,
-      };
-      new TextFile(this, "jest-runner-vscode.config.js", {
-        lines: `\
-// ${FileBase.PROJEN_MARKER}
-
-module.exports = {
-  // Additional arguments to pass to VS Code
-  launchArgs: [
-    '--new-window',
-    '--disable-extensions'
-  ],
-}
-`.split("\n"),
-      });
-    }
-
     if (super.release) {
       this.release = super.release;
     }
 
-    if (options.releaseToVSMarketplace) {
+    if (options.publishToVSMarketplace || options.publishToOpenVSXRegistry) {
       if (!this.release) {
         this.release = new Release(this, {
           branch: options.defaultReleaseBranch,
@@ -110,41 +89,53 @@ module.exports = {
         });
       }
 
+      const steps: JobStep[] = [
+        {
+          name: "Download build artifacts",
+          uses: "actions/download-artifact@v2",
+          with: {
+            name: "dist",
+            path: "dist",
+          },
+        },
+      ];
+
+      if (options.publishToOpenVSXRegistry) {
+        steps.push({
+          name: "Publish to Open VSX Registry",
+          uses: "HaaLeo/publish-vscode-extension@v0",
+          with: {
+            pat: `\${{ secrets.${
+              options.vsxRegistryToken ?? "VSX_REGISTRY_TOKEN"
+            } }}`,
+            extensionFile: "./dist/extension.vsix",
+            packagePath: "",
+          },
+        });
+      }
+
+      if (options.publishToVSMarketplace) {
+        steps.push({
+          name: "Publish to VS Marketplace",
+          uses: "HaaLeo/publish-vscode-extension@v0",
+          with: {
+            pat: `\${{ secrets.${
+              options.vsMarketplaceToken ?? "VS_MARKETPLACE_TOKEN"
+            } }}`,
+            registryUrl: "https://marketplace.visualstudio.com",
+            extensionFile: "./dist/extension.vsix",
+            packagePath: "",
+          },
+        });
+      }
+
       this.release.addJobs({
         release_marketplace: {
-          name: "Publish to VSCode Marketplace",
+          name: "Publish Extension",
           runsOn: ["ubuntu-latest"],
           needs: ["release_github"],
           permissions: { contents: JobPermission.READ },
-          steps: [
-            {
-              name: "Download build artifacts",
-              uses: "actions/download-artifact@v2",
-              with: {
-                name: "dist",
-                path: "dist",
-              },
-            },
-            {
-              name: "Publish VSX Registry",
-              uses: "HaaLeo/publish-vscode-extension@v0",
-              with: {
-                pat: "${{ secrets.VSX_REGISTRY_TOKEN }}",
-                extensionFile: "./dist/extension.vsix",
-                packagePath: "",
-              },
-            },
-            {
-              name: "Publish to VS Marketplace",
-              uses: "HaaLeo/publish-vscode-extension@v0",
-              with: {
-                pat: "${{ secrets.VS_MARKETPLACE_TOKEN }}",
-                registryUrl: "https://marketplace.visualstudio.com",
-                extensionFile: "./dist/extension.vsix",
-                packagePath: "",
-              },
-            },
-          ],
+          steps,
         },
       });
 

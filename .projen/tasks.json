@@ -80,7 +80,7 @@
           "exec": "tsc --noEmit"
         },
         {
-          "exec": "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node"
+          "exec": "esbuild ./src/extension.ts --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --bundle"
         }
       ]
     },
@@ -110,7 +110,7 @@
           "exec": "mkdir -p dist"
         },
         {
-          "exec": "esbuild ./src/extension.ts --bundle --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --minify"
+          "exec": "esbuild ./src/extension.ts --outfile=lib/extension.js --external:vscode --format=cjs --platform=node --bundle --minify"
         },
         {
           "exec": "vsce package -o dist/extension.vsix"
@@ -220,7 +220,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser @vscode/test-electron esbuild eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit jest-runner-vscode json-schema npm-check-updates prettier shx ts-jest ts-node typescript vsce @types/vscode"
+          "exec": "npm update @types/glob @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser esbuild eslint-config-prettier eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit json-schema npm-check-updates prettier shx ts-jest ts-node typescript vsce @types/vscode"
         },
         {
           "exec": "npx projen"

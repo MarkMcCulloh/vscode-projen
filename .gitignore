@@ -49,7 +49,6 @@ junit.xml
 out
 *.vsix
 .vscode-test
-!/jest-runner-vscode.config.js
 /dist/changelog.md
 /dist/version.txt
 !/.github/workflows/publish.yml

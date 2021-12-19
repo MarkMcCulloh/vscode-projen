@@ -155,7 +155,8 @@ const project = new VSCodeExtensionProject({
   },
   displayName: "Projen",
   icon: "resources/projen.png",
-  releaseToVSMarketplace: true,
+  publishToVSMarketplace: true,
+  publishToOpenVSXRegistry: true,
   vscodeVersion: "^1.62.0",
   description: "Projen helpers and utilities",
   publisher: "MarkMcCulloh",
@@ -166,5 +167,7 @@ const project = new VSCodeExtensionProject({
 project.addFields({
   browser: "./lib/extension.js",
 });
+
+project.addExcludeFromCleanup("test/**");
 
 project.synth();

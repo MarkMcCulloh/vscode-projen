@@ -15,7 +15,6 @@
     ".projen/files.json",
     ".projen/tasks.json",
     ".vscodeignore",
-    "jest-runner-vscode.config.js",
     "LICENSE",
     "tsconfig.dev.json",
     "tsconfig.json"

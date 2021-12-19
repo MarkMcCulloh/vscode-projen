@@ -31,7 +31,6 @@
     "@types/node": "^12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "@vscode/test-electron": "^2.0.0",
     "esbuild": "^0.14.5",
     "eslint": "^8",
     "eslint-config-prettier": "^8.3.0",
@@ -41,7 +40,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.4.5",
     "jest-junit": "^13",
-    "jest-runner-vscode": "^2.2.0",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^12",
     "prettier": "^2.5.1",
@@ -97,10 +95,9 @@
     "preset": "ts-jest",
     "globals": {
       "ts-jest": {
-        "tsconfig": "<rootDir>/tsconfig.dev.json"
+        "tsconfig": "tsconfig.dev.json"
       }
-    },
-    "runner": "vscode"
+    }
   },
   "types": "lib/extension.d.ts",
   "displayName": "Projen",
