@@ -173,6 +173,8 @@ const project = new VSCodeExtensionProject({
   jest: true,
 });
 
+project.vscodeIgnore!.addPatterns("!node_modules/node-gyp/bin/node-gyp.js");
+
 project.addFields({
   browser: "./lib/extension.js",
 });

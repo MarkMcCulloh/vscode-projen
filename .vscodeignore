@@ -13,3 +13,4 @@ test/
 test-reports/
 coverage/
 .projen/
+!node_modules/node-gyp/bin/node-gyp.js
