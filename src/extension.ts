@@ -2,10 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { getProjectIds } from "./jsii/fetcher";
-import { ProjenDependencyView } from "./projen_dependency_view";
-import { ProjenFileView } from "./projen_files_view";
 import { ProjenInfo } from "./projen_info";
-import { ProjenTaskView } from "./projen_task_view";
+import { ProjenView } from "./projen_view";
 import { ProjenWatcher } from "./projen_watcher";
 
 function useTerminal() {
@@ -41,6 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
   if (!vscode.workspace.workspaceFolders?.[0]) {
     return;
   }
+
   const projenInfo = new ProjenInfo(vscode.workspace.workspaceFolders[0].uri);
   const projenWatcher = new ProjenWatcher(projenInfo);
 
@@ -219,18 +218,10 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
-  const taskView = new ProjenTaskView(projenInfo);
-  vscode.window.createTreeView("projenTasks", {
-    treeDataProvider: taskView,
+  const overview = new ProjenView([projenInfo]);
+  vscode.window.createTreeView("projenProjects", {
+    treeDataProvider: overview,
     showCollapseAll: true,
-  });
-  const depsView = new ProjenDependencyView(projenInfo);
-  vscode.window.createTreeView("projenDeps", {
-    treeDataProvider: depsView,
-  });
-  const filesView = new ProjenFileView(projenInfo);
-  vscode.window.createTreeView("projenFiles", {
-    treeDataProvider: filesView,
   });
 
   vscode.tasks.registerTaskProvider("projen", {
@@ -268,9 +259,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   const updateStuff = () => {
     void projenInfo.update().then(() => {
-      taskView._onDidChangeTreeData.fire();
-      depsView._onDidChangeTreeData.fire();
-      filesView._onDidChangeTreeData.fire();
+      overview._onDidChangeTreeData.fire();
     });
   };
 
@@ -290,3 +279,19 @@ function getCDCommand(cwd: vscode.Uri): string {
 
   return `cd "${cwd}"`;
 }
+
+// async function findProjectInFolder(workspaceFolder?: vscode.WorkspaceFolder) {
+//   if (!workspaceFolder) {
+//     return [];
+//   }
+//   const exclusions: string[] = ["**/node_modules", "**/cdk.out", "**/dist"];
+//   const pattern: string = "**/.projen/deps.json";
+//   const depFileList = await vscode.workspace.findFiles(
+//     new vscode.RelativePattern(workspaceFolder, pattern),
+//     `{${exclusions.join(",")}}`
+//   );
+
+//   return depFileList.map((f) => {
+//     return f.with({ path: f.path.replace("/.projen/deps.json", "") });
+//   });
+// }

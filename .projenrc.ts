@@ -100,16 +100,8 @@ const project = new VSCodeExtensionProject({
     views: {
       projen: [
         {
-          id: "projenTasks",
-          name: "Tasks",
-        },
-        {
-          id: "projenDeps",
-          name: "Dependencies",
-        },
-        {
-          id: "projenFiles",
-          name: "Managed Files/Folders",
+          id: "projenProjects",
+          name: "Projects",
         },
       ],
     },
@@ -142,12 +134,12 @@ const project = new VSCodeExtensionProject({
         {
           command: "projen.run",
           group: "navigation",
-          when: "projen.inProject == true && view =~ /^projen.+$/",
+          when: "projen.inProject == true && view = projenProjects",
         },
         {
           command: "projen.openProjenRc",
           group: "navigation",
-          when: "projen.inProject == true && view =~ /^projen.+$/",
+          when: "projen.inProject == true && view = projenProjects",
         },
         {
           command: "projen.run",

@@ -10,6 +10,7 @@ export class ProjenInfo {
   public managedFiles: vscode.Uri[] = [];
   public tasks: ProjenTask[] = [];
   public dependencies: ProjenDependency[] = [];
+  public rcFile?: vscode.Uri;
   decorator: GeneratedFileDecorationProvider;
 
   constructor(public workspaceRoot: vscode.Uri) {
@@ -61,6 +62,8 @@ export class ProjenInfo {
 
       return;
     }
+
+    this.rcFile = rootFiles.find((r) => r.path.includes(".projenrc."));
 
     let files: vscode.Uri[] = [];
     let verifiedFiles = false;
@@ -125,7 +128,9 @@ export class ProjenInfo {
         const fileContent = await readTextFromFile(f);
         const taskData = JSON.parse(fileContent).tasks;
 
-        this.tasks = Object.values(taskData).map((t: any) => new ProjenTask(t));
+        this.tasks = Object.values(taskData).map(
+          (t: any) => new ProjenTask(this, t)
+        );
         this.tasks.sort((a, b) => a.name.localeCompare(b.name));
       } else if (f.path.endsWith("deps.json")) {
         const fileContent = await readTextFromFile(f);
@@ -133,7 +138,7 @@ export class ProjenInfo {
         depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
 
         this.dependencies = depData.map(
-          (d: any) => new ProjenDependency(d.name, d.type, d.version)
+          (d: any) => new ProjenDependency(this, d.name, d.type, d.version)
         );
       }
     }
@@ -183,9 +188,11 @@ export class ProjenTask {
   public name: string;
   public description?: string;
   public steps: ProjenStep[];
+  public readonly projenInfo: ProjenInfo;
 
-  constructor(taskData: any) {
+  constructor(projenInfo: ProjenInfo, taskData: any) {
     this.name = taskData.name;
+    this.projenInfo = projenInfo;
     this.description = taskData.description;
     this.steps = (taskData.steps ?? []).map((s: any) => {
       const entries = Object.entries(s)[0];
@@ -196,6 +203,7 @@ export class ProjenTask {
 
 export class ProjenDependency {
   constructor(
+    public projenInfo: ProjenInfo,
     public name: string,
     public type: string,
     public version?: string
