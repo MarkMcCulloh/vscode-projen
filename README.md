@@ -36,10 +36,6 @@ While in preview, expect behaviors, defaults, and settings to change without dep
 
 Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).
 
-## Current Limitations
-
-- Only works in a single-folder workspace with a projen project at the root
-
 ## Planned Features
 
 See [[Feature]](https://github.com/MarkMcCulloh/vscode-projen/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)s in the [GitHub issues list](https://github.com/MarkMcCulloh/vscode-projen/issues).
