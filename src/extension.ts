@@ -35,18 +35,43 @@ function availableProjectLibraries() {
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   if (!vscode.workspace.workspaceFolders?.[0]) {
     return;
   }
 
-  const projenInfo = new ProjenInfo(vscode.workspace.workspaceFolders[0].uri);
-  const projenWatcher = new ProjenWatcher(projenInfo);
+  const projects = (
+    await Promise.all(
+      vscode.workspace.workspaceFolders.map((f) => {
+        return findProjectInFolder(f);
+      })
+    )
+  )
+    .flat()
+    .map((r) => new ProjenInfo(r));
 
-  function newOrActiveTerminal() {
-    let terminal = vscode.window.terminals.find((t) => t.name === "[projen]");
+  const singleProject = projects.length === 1;
+
+  async function quickPickProject() {
+    if (singleProject) {
+      return projects[0];
+    }
+    const selection = await vscode.window.showQuickPick(
+      projects.map((t) => t.workspaceRoot.path),
+      { placeHolder: "Select projent project" }
+    );
+
+    return projects.find((p) => p.workspaceRoot.path === selection)!;
+  }
+
+  function newOrActiveTerminal(projenInfo: ProjenInfo) {
+    const terminalName = singleProject
+      ? `[projen]`
+      : `[projen][${projenInfo.workspaceRoot.path}]`;
+
+    let terminal = vscode.window.terminals.find((t) => t.name === terminalName);
     if (!terminal) {
-      terminal = vscode.window.createTerminal("[projen]");
+      terminal = vscode.window.createTerminal(terminalName);
     } else if (
       vscode.workspace
         .getConfiguration("projen")
@@ -59,13 +84,21 @@ export function activate(context: vscode.ExtensionContext) {
     return terminal;
   }
 
-  function getVSCodeTask(name: string, ...args: string[]) {
+  function getVSCodeTask(
+    projenInfo: ProjenInfo,
+    name: string,
+    ...args: string[]
+  ) {
     args.unshift("projen");
 
+    const taskName = singleProject
+      ? name
+      : `${name} [${projenInfo.workspaceRoot.path}]`;
+
     return new vscode.Task(
-      { type: "projen", task: name },
+      { type: "projen", task: taskName },
       vscode.TaskScope.Workspace,
-      name,
+      taskName,
       "projen",
       new vscode.ProcessExecution("npx", args, {
         cwd: projenInfo.workspaceRoot.fsPath,
@@ -77,6 +110,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("projen.openProjenRc", async () => {
+      const projenInfo = await quickPickProject();
+
       const files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(
           projenInfo.workspaceRoot,
@@ -92,11 +127,12 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("projen.run", () => {
+    vscode.commands.registerCommand("projen.run", async () => {
+      const projenInfo = await quickPickProject();
       if (useTerminal()) {
-        newOrActiveTerminal().sendText(`npx projen`);
+        newOrActiveTerminal(projenInfo).sendText(`npx projen`);
       } else {
-        void vscode.tasks.executeTask(getVSCodeTask("projen"));
+        void vscode.tasks.executeTask(getVSCodeTask(projenInfo, "projen"));
       }
     })
   );
@@ -134,25 +170,25 @@ export function activate(context: vscode.ExtensionContext) {
           projectLibSelection = customLib.toLowerCase().trim();
         }
 
-        let projects = projectType
+        let projectTypes = projectType
           ? []
           : await getProjectIds(projectLibSelection);
 
         let projectId: string | undefined = projectType;
 
-        if (projects.length > 1) {
-          // If there are multiple projects, we need a pjid
-          projects = projects.filter((p) => !!p.pjid);
+        if (projectTypes.length > 1) {
+          // If there are multiple projectTypes, we need a pjid
+          projectTypes = projectTypes.filter((p) => !!p.pjid);
         }
 
-        if (projects.length === 0 && !projectType) {
+        if (projectTypes.length === 0 && !projectType) {
           void vscode.window.showErrorMessage(
             `Unable to find available project types from "${projectLibSelection}"`
           );
           return;
         }
 
-        if (projects.length > 0) {
+        if (projectTypes.length > 0) {
           const projectPickerPromise = new Promise<string | undefined>(
             (resolve) => {
               const picker = vscode.window.createQuickPick();
@@ -160,7 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
               picker.title = "Project Type Selection";
               picker.placeholder = "Select project type";
               picker.matchOnDetail = true;
-              picker.items = projects.map((project) => ({
+              picker.items = projectTypes.map((project) => ({
                 detail: project.pjid ?? "",
                 label: project.summary ?? project.typeName,
               }));
@@ -207,18 +243,13 @@ export function activate(context: vscode.ExtensionContext) {
         }
         args = args.trim();
 
-        if (useTerminal()) {
-          newOrActiveTerminal().sendText(`npx projen new ${args}`);
-        } else {
-          void vscode.tasks.executeTask(
-            getVSCodeTask("new", "new", ...args.split(" "))
-          );
-        }
+        const terminal = vscode.window.createTerminal("[projen]");
+        terminal.sendText(`npx projen new ${args}`);
       }
     )
   );
 
-  const overview = new ProjenView([projenInfo]);
+  const overview = new ProjenView(projects);
   vscode.window.createTreeView("projenProjects", {
     treeDataProvider: overview,
     showCollapseAll: true,
@@ -226,7 +257,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.tasks.registerTaskProvider("projen", {
     provideTasks(_token?: vscode.CancellationToken) {
-      return projenInfo.tasks.map((t) => getVSCodeTask(t.name, t.name));
+      return projects.flatMap((p) => {
+        return p.tasks.map((t) => getVSCodeTask(p, t.name, t.name));
+      });
     },
     resolveTask(task: vscode.Task, _token?: vscode.CancellationToken) {
       return task;
@@ -234,37 +267,58 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("projen.runTask", async (task?: string) => {
-      if (task) {
-        if (useTerminal()) {
-          newOrActiveTerminal().sendText(`npx projen ${task}`);
-        } else {
-          void vscode.tasks.executeTask(getVSCodeTask(task, task));
+    vscode.commands.registerCommand(
+      "projen.runTask",
+      async (projenInfo?: ProjenInfo, task?: string) => {
+        if (!projenInfo) {
+          projenInfo = await quickPickProject();
         }
-      } else {
-        const selection = await vscode.window.showQuickPick(
-          projenInfo.tasks.map((t) => t.name)
-        );
 
-        if (selection) {
+        if (task) {
           if (useTerminal()) {
-            newOrActiveTerminal().sendText(`npx projen ${selection}`);
+            newOrActiveTerminal(projenInfo).sendText(`npx projen ${task}`);
           } else {
-            void vscode.tasks.executeTask(getVSCodeTask(selection, selection));
+            void vscode.tasks.executeTask(
+              getVSCodeTask(projenInfo, task, task)
+            );
+          }
+        } else {
+          const selection = await vscode.window.showQuickPick(
+            projenInfo.tasks.map((t) => t.name)
+          );
+
+          if (selection) {
+            if (useTerminal()) {
+              newOrActiveTerminal(projenInfo).sendText(
+                `npx projen ${selection}`
+              );
+            } else {
+              void vscode.tasks.executeTask(
+                getVSCodeTask(projenInfo, selection, selection)
+              );
+            }
           }
         }
       }
-    })
+    )
   );
 
-  const updateStuff = () => {
+  const updateStuff = (projenInfo: ProjenInfo) => {
     void projenInfo.update().then(() => {
       overview._onDidChangeTreeData.fire();
     });
   };
 
-  projenWatcher.onDirectoryChange(updateStuff);
-  void updateStuff();
+  const projenWatchers = projects.map((p) => new ProjenWatcher(p));
+  projenWatchers.forEach((w) =>
+    w.onDirectoryChange(() => updateStuff(w.projenInfo))
+  );
+
+  for (const p of projects) {
+    await p.update();
+  }
+
+  overview._onDidChangeTreeData.fire();
 }
 
 // this method is called when your extension is deactivated
@@ -280,18 +334,20 @@ function getCDCommand(cwd: vscode.Uri): string {
   return `cd "${cwd}"`;
 }
 
-// async function findProjectInFolder(workspaceFolder?: vscode.WorkspaceFolder) {
-//   if (!workspaceFolder) {
-//     return [];
-//   }
-//   const exclusions: string[] = ["**/node_modules", "**/cdk.out", "**/dist"];
-//   const pattern: string = "**/.projen/deps.json";
-//   const depFileList = await vscode.workspace.findFiles(
-//     new vscode.RelativePattern(workspaceFolder, pattern),
-//     `{${exclusions.join(",")}}`
-//   );
+async function findProjectInFolder(workspaceFolder?: vscode.WorkspaceFolder) {
+  if (!workspaceFolder) {
+    return [];
+  }
+  const exclusions: string[] = ["**/node_modules", "**/cdk.out", "**/dist"];
+  const pattern: string = "**/.projen/deps.json";
+  const depFileList = await vscode.workspace.findFiles(
+    new vscode.RelativePattern(workspaceFolder, pattern),
+    `{${exclusions.join(",")}}`
+  );
 
-//   return depFileList.map((f) => {
-//     return f.with({ path: f.path.replace("/.projen/deps.json", "") });
-//   });
-// }
+  const cleanupList = depFileList.map((f) => {
+    return f.with({ path: f.path.replace("/.projen/deps.json", "") });
+  });
+
+  return cleanupList;
+}

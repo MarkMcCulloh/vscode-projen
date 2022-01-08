@@ -141,7 +141,7 @@ class Task extends BaseTreeItem {
     this.command = {
       title: "Run Task",
       command: "projen.runTask",
-      arguments: [obj.name],
+      arguments: [this.projenInfo, obj.name],
     };
     this.tooltip = obj.description;
     this.iconPath = new vscode.ThemeIcon(

@@ -5,7 +5,7 @@ export class ProjenWatcher {
   readonly projenDirectoryWatcher: vscode.FileSystemWatcher;
   readonly projenFileWatcher: vscode.FileSystemWatcher;
 
-  constructor(private projenInfo: ProjenInfo) {
+  constructor(public projenInfo: ProjenInfo) {
     this.projenDirectoryWatcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(this.projenInfo.workspaceRoot, ".projen/**"),
       false,
