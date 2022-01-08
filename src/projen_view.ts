@@ -170,7 +170,7 @@ class File extends BaseTreeItem {
 
 class Project extends BaseTreeItem {
   constructor(info: ProjenInfo) {
-    super(info, info.workspaceRoot, vscode.TreeItemCollapsibleState.Collapsed);
+    super(info, info.projectRoot, vscode.TreeItemCollapsibleState.Collapsed);
 
     this.iconPath = vscode.ThemeIcon.Folder;
   }

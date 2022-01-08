@@ -7,7 +7,7 @@ export class ProjenWatcher {
 
   constructor(public projenInfo: ProjenInfo) {
     this.projenDirectoryWatcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(this.projenInfo.workspaceRoot, ".projen/**"),
+      new vscode.RelativePattern(this.projenInfo.projectRoot, ".projen/**"),
       false,
       false,
       true
@@ -15,7 +15,7 @@ export class ProjenWatcher {
 
     this.projenFileWatcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(
-        this.projenInfo.workspaceRoot,
+        this.projenInfo.projectRoot,
         ".projenrc.{ts,js}"
       ),
       false,

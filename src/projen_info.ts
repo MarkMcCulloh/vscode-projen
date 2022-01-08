@@ -13,17 +13,17 @@ export class ProjenInfo {
   public rcFile?: vscode.Uri;
   decorator: GeneratedFileDecorationProvider;
 
-  constructor(public workspaceRoot: vscode.Uri) {
+  constructor(public projectRoot: vscode.Uri) {
     this.decorator = new GeneratedFileDecorationProvider();
     vscode.window.registerFileDecorationProvider(this.decorator);
   }
 
   async update() {
     const projenFolderFiles = await vscode.workspace.findFiles(
-      new vscode.RelativePattern(this.workspaceRoot, ".projen/*")
+      new vscode.RelativePattern(this.projectRoot, ".projen/*")
     );
     const rootFiles = await vscode.workspace.findFiles(
-      new vscode.RelativePattern(this.workspaceRoot, "*")
+      new vscode.RelativePattern(this.projectRoot, "*")
     );
 
     if (projenFolderFiles.length == 0) {
@@ -41,7 +41,7 @@ export class ProjenInfo {
         rootFiles.length === 0 &&
         (
           await vscode.workspace.findFiles(
-            new vscode.RelativePattern(this.workspaceRoot, "**"),
+            new vscode.RelativePattern(this.projectRoot, "**"),
             undefined,
             1
           )
@@ -75,7 +75,7 @@ export class ProjenInfo {
       try {
         const fileManifest = await readTextFromFile(fileManifestUri);
         const fileData: string[] = JSON.parse(fileManifest).files;
-        files = fileData.map((f) => vscode.Uri.joinPath(this.workspaceRoot, f));
+        files = fileData.map((f) => vscode.Uri.joinPath(this.projectRoot, f));
 
         // handles special cases
         const specialFiles = rootFiles.filter(

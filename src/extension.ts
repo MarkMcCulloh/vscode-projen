@@ -57,17 +57,17 @@ export async function activate(context: vscode.ExtensionContext) {
       return projects[0];
     }
     const selection = await vscode.window.showQuickPick(
-      projects.map((t) => t.workspaceRoot.path),
+      projects.map((t) => t.projectRoot.path),
       { placeHolder: "Select projent project" }
     );
 
-    return projects.find((p) => p.workspaceRoot.path === selection)!;
+    return projects.find((p) => p.projectRoot.path === selection)!;
   }
 
   function newOrActiveTerminal(projenInfo: ProjenInfo) {
     const terminalName = singleProject
       ? `[projen]`
-      : `[projen][${projenInfo.workspaceRoot.path}]`;
+      : `[projen][${projenInfo.projectRoot.path}]`;
 
     let terminal = vscode.window.terminals.find((t) => t.name === terminalName);
     if (!terminal) {
@@ -77,7 +77,7 @@ export async function activate(context: vscode.ExtensionContext) {
         .getConfiguration("projen")
         .get("terminal.alwaysChangeToWorkspaceDirectory")
     ) {
-      terminal.sendText(getCDCommand(projenInfo.workspaceRoot));
+      terminal.sendText(getCDCommand(projenInfo.projectRoot));
     }
 
     terminal.show();
@@ -93,7 +93,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const taskName = singleProject
       ? name
-      : `${name} [${projenInfo.workspaceRoot.path}]`;
+      : `${name} [${projenInfo.projectRoot.path}]`;
 
     return new vscode.Task(
       { type: "projen", task: taskName },
@@ -101,7 +101,7 @@ export async function activate(context: vscode.ExtensionContext) {
       taskName,
       "projen",
       new vscode.ProcessExecution("npx", args, {
-        cwd: projenInfo.workspaceRoot.fsPath,
+        cwd: projenInfo.projectRoot.fsPath,
       }),
       // TODO: Use dynamic problem matchers
       ["$tsc", "$eslint-compact"]
@@ -113,10 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const projenInfo = await quickPickProject();
 
       const files = await vscode.workspace.findFiles(
-        new vscode.RelativePattern(
-          projenInfo.workspaceRoot,
-          ".projenrc.{ts,js}"
-        )
+        new vscode.RelativePattern(projenInfo.projectRoot, ".projenrc.{ts,js}")
       );
 
       if (files.length > 0) {
