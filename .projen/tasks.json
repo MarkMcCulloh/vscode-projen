@@ -133,6 +133,9 @@
       },
       "steps": [
         {
+          "exec": "npm ci"
+        },
+        {
           "exec": "rm -fr dist"
         },
         {

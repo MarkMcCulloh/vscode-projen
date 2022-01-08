@@ -81,11 +81,11 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     if (options.publishToVSMarketplace || options.publishToOpenVSXRegistry) {
       if (!this.release) {
         this.release = new Release(this, {
+          artifactsDirectory: "dist",
           branch: options.defaultReleaseBranch,
           task: this.buildTask,
           versionFile: "package.json",
           releaseWorkflowName: "Publish",
-          releaseWorkflowSetupSteps: this.installWorkflowSteps,
         });
       }
 
@@ -146,6 +146,8 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       packageTask.exec("mkdir -p dist");
       packageTask.exec(`${esbuildBase} --minify`);
       packageTask.exec("vsce package -o dist/extension.vsix");
+
+      this.tasks.tryFind("release")?.prependExec("npm ci");
     }
   }
 }
