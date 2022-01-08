@@ -94,7 +94,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
           name: "Download build artifacts",
           uses: "actions/download-artifact@v2",
           with: {
-            name: "dist",
+            name: "build-artifact",
             path: "dist",
           },
         },
