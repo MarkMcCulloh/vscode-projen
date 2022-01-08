@@ -40,15 +40,22 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const projects = (
-    await Promise.all(
-      vscode.workspace.workspaceFolders.map((f) => {
-        return findProjectInFolder(f);
+  let projects: ProjenInfo[] = [];
+  for (const folder of vscode.workspace.workspaceFolders) {
+    const folderProjects = await findProjectInFolder(folder);
+    const filteredProjects = folderProjects
+      .filter((f) => {
+        if (projects.some((p) => p.projectRoot.path === f.path)) {
+          return false;
+        } else {
+          return true;
+        }
       })
-    )
-  )
-    .flat()
-    .map((r) => new ProjenInfo(r));
+      .map((p) => new ProjenInfo(folder, p));
+
+    projects.push(...filteredProjects);
+  }
+  projects.sort((a, b) => a.label.localeCompare(b.label));
 
   const singleProject = projects.length === 1;
 
@@ -57,17 +64,17 @@ export async function activate(context: vscode.ExtensionContext) {
       return projects[0];
     }
     const selection = await vscode.window.showQuickPick(
-      projects.map((t) => t.projectRoot.path),
+      projects.map((t) => t.label),
       { placeHolder: "Select projent project" }
     );
 
-    return projects.find((p) => p.projectRoot.path === selection)!;
+    return projects.find((p) => p.label === selection)!;
   }
 
   function newOrActiveTerminal(projenInfo: ProjenInfo) {
     const terminalName = singleProject
       ? `[projen]`
-      : `[projen][${projenInfo.projectRoot.path}]`;
+      : `[projen][${projenInfo.label}]`;
 
     let terminal = vscode.window.terminals.find((t) => t.name === terminalName);
     if (!terminal) {
@@ -91,9 +98,7 @@ export async function activate(context: vscode.ExtensionContext) {
   ) {
     args.unshift("projen");
 
-    const taskName = singleProject
-      ? name
-      : `${name} [${projenInfo.projectRoot.path}]`;
+    const taskName = singleProject ? name : `${name} [${projenInfo.label}]`;
 
     return new vscode.Task(
       { type: "projen", task: taskName },

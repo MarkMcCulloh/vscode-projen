@@ -11,9 +11,22 @@ export class ProjenInfo {
   public tasks: ProjenTask[] = [];
   public dependencies: ProjenDependency[] = [];
   public rcFile?: vscode.Uri;
+  public label: string;
   decorator: GeneratedFileDecorationProvider;
 
-  constructor(public projectRoot: vscode.Uri) {
+  constructor(
+    public workspaceFolder: vscode.WorkspaceFolder,
+    public projectRoot: vscode.Uri
+  ) {
+    this.label = projectRoot.path.replace(workspaceFolder.uri.path, "");
+    if (this.label.startsWith("/")) {
+      this.label = this.label.slice(1);
+    }
+    if (this.label === "") {
+      this.label = projectRoot.path.slice(
+        projectRoot.path.lastIndexOf("/") + 1
+      );
+    }
     this.decorator = new GeneratedFileDecorationProvider();
     vscode.window.registerFileDecorationProvider(this.decorator);
   }
