@@ -12,12 +12,14 @@ export class ProjenInfo {
   public dependencies: ProjenDependency[] = [];
   public rcFile?: vscode.Uri;
   public label: string;
+  previouslyManaged: vscode.Uri[];
   decorator: GeneratedFileDecorationProvider;
 
   constructor(
     public workspaceFolder: vscode.WorkspaceFolder,
     public projectRoot: vscode.Uri
   ) {
+    this.previouslyManaged = [];
     this.label = projectRoot.path
       .toLowerCase()
       .replace(workspaceFolder.uri.path.toLowerCase(), "");
@@ -106,10 +108,10 @@ export class ProjenInfo {
       } catch (error) {
         console.error(error);
       }
-    }
 
-    if (files.length === 0) {
-      files.push(...rootFiles, ...projenFolderFiles);
+      if (files.length === 0) {
+        files.push(...rootFiles, ...projenFolderFiles);
+      }
     }
 
     void vscode.commands.executeCommand("setContext", "projen.inProject", true);
@@ -137,24 +139,30 @@ export class ProjenInfo {
       }
     }
 
-    for (const f of projenManaged) {
-      if (f.path.endsWith("tasks.json")) {
-        const fileContent = await readTextFromFile(f);
-        const taskData = JSON.parse(fileContent).tasks;
+    const taskFile = projenFolderFiles.find((file) =>
+      file.path.endsWith("tasks.json")
+    );
+    if (taskFile) {
+      const fileContent = await readTextFromFile(taskFile);
+      const taskData = JSON.parse(fileContent).tasks;
 
-        this.tasks = Object.values(taskData).map(
-          (t: any) => new ProjenTask(this, t)
-        );
-        this.tasks.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (f.path.endsWith("deps.json")) {
-        const fileContent = await readTextFromFile(f);
-        const depData = JSON.parse(fileContent).dependencies;
-        depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+      this.tasks = Object.values(taskData).map(
+        (t: any) => new ProjenTask(this, t)
+      );
+      this.tasks.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
-        this.dependencies = depData.map(
-          (d: any) => new ProjenDependency(this, d.name, d.type, d.version)
-        );
-      }
+    const depFile = projenFolderFiles.find((file) =>
+      file.path.endsWith("deps.json")
+    );
+    if (depFile) {
+      const fileContent = await readTextFromFile(depFile);
+      const depData = JSON.parse(fileContent).dependencies;
+      depData.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+      this.dependencies = depData.map(
+        (d: any) => new ProjenDependency(this, d.name, d.type, d.version)
+      );
     }
 
     const directoryMap: any = {};
@@ -191,7 +199,11 @@ export class ProjenInfo {
     this.decorator.files = projenManaged.map((f) => f.toString());
     this.managedFiles = projenManaged;
 
-    this.decorator._onDidChangeFileDecorations.fire(projenManaged);
+    this.decorator._onDidChangeFileDecorations.fire(
+      this.previouslyManaged.concat(...projenManaged)
+    );
+
+    this.previouslyManaged = projenManaged;
   }
 }
 export class ProjenStep {

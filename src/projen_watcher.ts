@@ -10,7 +10,7 @@ export class ProjenWatcher {
       new vscode.RelativePattern(this.projenInfo.projectRoot, ".projen/**"),
       false,
       false,
-      true
+      false
     );
 
     this.projenFileWatcher = vscode.workspace.createFileSystemWatcher(
@@ -20,17 +20,19 @@ export class ProjenWatcher {
       ),
       false,
       false,
-      true
+      false
     );
   }
 
   onDirectoryChange(listener: (e: vscode.Uri) => any) {
     this.projenDirectoryWatcher.onDidCreate(listener);
     this.projenDirectoryWatcher.onDidChange(listener);
+    this.projenDirectoryWatcher.onDidDelete(listener);
   }
 
   onProjenChange(listener: (e: vscode.Uri) => any) {
     this.projenFileWatcher.onDidCreate(listener);
     this.projenFileWatcher.onDidChange(listener);
+    this.projenFileWatcher.onDidDelete(listener);
   }
 }
