@@ -341,14 +341,14 @@ async function findProjectInFolder(workspaceFolder?: vscode.WorkspaceFolder) {
     return [];
   }
   const exclusions: string[] = ["**/node_modules", "**/cdk.out", "**/dist"];
-  const pattern: string = "**/.projen/deps.json";
+  const pattern: string = "**/.projen/tasks.json";
   const depFileList = await vscode.workspace.findFiles(
     new vscode.RelativePattern(workspaceFolder, pattern),
     `{${exclusions.join(",")}}`
   );
 
   const cleanupList = depFileList.map((f) => {
-    return f.with({ path: f.path.replace("/.projen/deps.json", "") });
+    return f.with({ path: f.path.replace("/.projen/tasks.json", "") });
   });
 
   return cleanupList;
