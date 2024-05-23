@@ -40,7 +40,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       "esbuild ./src/extension.ts --outfile=lib/extension.js --external:node-gyp --external:vscode --format=cjs --platform=node --bundle";
 
     this.addDeps("@types/vscode");
-    this.addDevDeps("vsce", "esbuild");
+    this.addDevDeps("@vscode/vsce", "esbuild");
 
     this.vscodeIgnore = new IgnoreFile(this, ".vscodeignore");
     this.vscodeIgnore.addPatterns(
@@ -74,20 +74,20 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("activationEvents", options.activationEvents);
     this.package.addField("contributes", options.contributes);
 
-    if (super.release) {
-      this.release = super.release;
-    }
+    // if (super.release) {
+    //   this.release = super.release;
+    // }
 
     if (options.publishToVSMarketplace || options.publishToOpenVSXRegistry) {
-      if (!this.release) {
-        this.release = new Release(this, {
-          artifactsDirectory: "dist",
-          branch: options.defaultReleaseBranch,
-          task: this.buildTask,
-          versionFile: "package.json",
-          releaseWorkflowName: "Publish",
-        });
-      }
+      // if (!this.release) {
+      this.release = new Release(this, {
+        artifactsDirectory: "dist",
+        branch: options.defaultReleaseBranch,
+        task: this.buildTask,
+        versionFile: "package.json",
+        releaseWorkflowName: "Publish",
+      });
+      // }
 
       const steps: JobStep[] = [
         {
