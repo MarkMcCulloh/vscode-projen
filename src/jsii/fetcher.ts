@@ -1,9 +1,13 @@
 import { Readable } from "stream";
 import gunzip from "gunzip-maybe";
 import { tarball } from "pacote";
-import registryUrl from "registry-url";
 import { extract } from "tar-stream";
 
+async function getRegistryUrl(scope: string | undefined) {
+  const registryUrl = await import("registry-url");
+  const url = registryUrl.default(scope);
+  return url;
+}
 export interface RemoteProjenProjectInfo {
   typeName: string;
   pjid?: string;
@@ -84,7 +88,7 @@ export async function getJSII(spec: string): Promise<any> {
     }
 
     const tarballData = await tarball(spec, {
-      registry: registryUrl(scope),
+      registry: await getRegistryUrl(scope),
     });
 
     const tarballStream = new Readable();
