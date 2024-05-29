@@ -88,7 +88,7 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       const steps: JobStep[] = [
         {
           name: "Download build artifacts",
-          uses: "actions/download-artifact@v2",
+          uses: "actions/download-artifact@v4",
           with: {
             name: "build-artifact",
             path: "dist",
