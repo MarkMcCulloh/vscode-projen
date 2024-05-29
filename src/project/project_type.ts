@@ -74,20 +74,16 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
     this.package.addField("activationEvents", options.activationEvents);
     this.package.addField("contributes", options.contributes);
 
-    // if (super.release) {
-    //   this.release = super.release;
-    // }
-
     if (options.publishToVSMarketplace || options.publishToOpenVSXRegistry) {
-      // if (!this.release) {
-      this.release = new Release(this, {
-        artifactsDirectory: "dist",
-        branch: options.defaultReleaseBranch,
-        task: this.buildTask,
-        versionFile: "package.json",
-        releaseWorkflowName: "Publish",
-      });
-      // }
+      if (!this.release) {
+        this.release = new Release(this, {
+          artifactsDirectory: "dist",
+          branch: options.defaultReleaseBranch,
+          task: this.buildTask,
+          versionFile: "package.json",
+          releaseWorkflowName: "Publish",
+        });
+      }
 
       const steps: JobStep[] = [
         {

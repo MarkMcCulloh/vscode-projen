@@ -10,13 +10,7 @@ const project = new VSCodeExtensionProject({
   entrypoint: "./lib/extension.js",
   minNodeVersion: "20.0.0",
   deps: ["gunzip-maybe", "tar-stream", "pacote", "registry-url"],
-  devDeps: [
-    // "@types/glob",
-    "shx",
-    "@types/gunzip-maybe",
-    "@types/tar-stream",
-    "@types/pacote",
-  ],
+  devDeps: ["shx", "@types/gunzip-maybe", "@types/tar-stream", "@types/pacote"],
   eslintOptions: {
     dirs: ["src"],
     devdirs: ["test"],
@@ -135,12 +129,12 @@ const project = new VSCodeExtensionProject({
         {
           command: "projen.run",
           group: "navigation",
-          when: "projen.inProject == true && view = projenProjects",
+          when: "projen.inProject == true && view == projenProjects",
         },
         {
           command: "projen.openProjenRc",
           group: "navigation",
-          when: "projen.inProject == true && view = projenProjects",
+          when: "projen.inProject == true && view == projenProjects",
         },
         {
           command: "projen.run",
