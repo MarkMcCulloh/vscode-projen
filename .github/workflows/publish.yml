@@ -86,11 +86,6 @@ jobs:
         with:
           name: build-artifact
           path: dist
-      - name: Publish to Open VSX Registry
-        uses: HaaLeo/publish-vscode-extension@v1
-        with:
-          pat: ${{ secrets.VSX_REGISTRY_TOKEN }}
-          extensionFile: ./dist/extension.vsix
       - name: Publish to VS Marketplace
         uses: HaaLeo/publish-vscode-extension@v1
         with:
