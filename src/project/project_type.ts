@@ -99,13 +99,12 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       if (options.publishToOpenVSXRegistry) {
         steps.push({
           name: "Publish to Open VSX Registry",
-          uses: "HaaLeo/publish-vscode-extension@v0",
+          uses: "HaaLeo/publish-vscode-extension@v1",
           with: {
             pat: `\${{ secrets.${
               options.vsxRegistryToken ?? "VSX_REGISTRY_TOKEN"
             } }}`,
             extensionFile: "./dist/extension.vsix",
-            packagePath: "",
           },
         });
       }
@@ -113,14 +112,13 @@ export class VSCodeExtensionProject extends TypeScriptAppProject {
       if (options.publishToVSMarketplace) {
         steps.push({
           name: "Publish to VS Marketplace",
-          uses: "HaaLeo/publish-vscode-extension@v0",
+          uses: "HaaLeo/publish-vscode-extension@v1",
           with: {
             pat: `\${{ secrets.${
               options.vsMarketplaceToken ?? "VS_MARKETPLACE_TOKEN"
             } }}`,
             registryUrl: "https://marketplace.visualstudio.com",
             extensionFile: "./dist/extension.vsix",
-            packagePath: "",
           },
         });
       }
