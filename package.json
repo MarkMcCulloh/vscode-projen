@@ -109,7 +109,7 @@
   "types": "lib/extension.d.ts",
   "displayName": "Projen",
   "icon": "resources/projen.png",
-  "preview": true,
+  "preview": false,
   "publisher": "MarkMcCulloh",
   "activationEvents": [
     "workspaceContains:.projen/**",

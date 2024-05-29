@@ -2,10 +2,6 @@
 
 Add some [projen](https://github.com/projen/projen) flavor to VSCode!
 
-*Currently in preview*
-
-While in preview, expect behaviors, defaults, and settings to change without deprecation notices. Keep on eye on the GitHub releases to see changes.
-
 ## Features
 
 - Commands
@@ -22,6 +18,10 @@ While in preview, expect behaviors, defaults, and settings to change without dep
   - Show list of files managed by projen (either directly or indirectly, like a lockfile)
   - De-emphasize files managed by projen in explorer and decorate it with a "PJ" badge
 
+## Changelog
+
+Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).
+
 ## Screenshots
 
 ![Basic Overview](./screenshots/overview.png)
@@ -31,11 +31,3 @@ While in preview, expect behaviors, defaults, and settings to change without dep
 ![Tasks](./screenshots/tasks.png)
 
 ![Project Types](./screenshots/project-types.png)
-
-## Changelog
-
-Changelog is kept via [GitHub Releases](https://github.com/MarkMcCulloh/vscode-projen/releases).
-
-## Planned Features
-
-See [[Feature]](https://github.com/MarkMcCulloh/vscode-projen/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)s in the [GitHub issues list](https://github.com/MarkMcCulloh/vscode-projen/issues).

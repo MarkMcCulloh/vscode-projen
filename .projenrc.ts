@@ -152,12 +152,12 @@ const project = new VSCodeExtensionProject({
   displayName: "Projen",
   icon: "resources/projen.png",
   publishToVSMarketplace: true,
-  // Disabled for now
+  // Disabled for now https://github.com/MarkMcCulloh/vscode-projen/issues/29
   publishToOpenVSXRegistry: false,
   vscodeVersion: "^1.62.0",
   description: "Projen helpers and utilities",
   publisher: "MarkMcCulloh",
-  preview: true,
+  preview: false,
   jest: true,
 });
 
