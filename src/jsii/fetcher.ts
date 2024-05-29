@@ -110,8 +110,6 @@ export async function getJSII(spec: string): Promise<any> {
     extractPipe
       .on("entry", function (header, stream, next) {
         if (header.name == "package/.jsii") {
-          stream.setEncoding("utf8");
-
           stream.on("data", function (chunk) {
             allChunks += chunk.toString();
           });
